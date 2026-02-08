@@ -9,7 +9,7 @@
  *
  * WHAT CHERRY GETS FOR FREE FROM FRUIT (through inheritance):
  * - tier, fruitName, pointValue, fruitSize, fruitColor fields
- * - GetTier(), GetPointValue(), GetFruitSize(), GetFruitName() methods
+ * - GetTier(), GetPointValue(), GetFruitName() methods
  * - GetMergeResultTier(), OnMerge() methods
  * - OnCollisionEnter2D() merge detection
  * - SetPhysicsEnabled(), SetKinematic() helpers
@@ -68,10 +68,10 @@ public class Cherry : Fruit
         // are declared in Fruit.cs as 'protected'. Because Cherry inherits
         // from Fruit, Cherry can access and set them directly.
         //
-        // We set these values BEFORE calling base.Awake() so that when
-        // the base class caches component references, our values are ready.
-        // Later, Start() calls ApplyFruitProperties() which reads these
-        // values and applies them to the Unity components (scale, color).
+        // We set these values first, then call base.Awake() to cache
+        // component references. Later, Start() calls ApplyFruitProperties()
+        // which reads these values and applies them to the Unity components
+        // (scale, color).
         // =====================================================================
 
         // Cherry is the first fruit in the merge chain (tier 0)

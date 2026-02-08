@@ -60,7 +60,7 @@ Two fruits of the **same tier** collide and produce **one fruit of the next tier
 
 ## Drop Rules
 
-The `DropController` only spawns fruits from **tier 0 through tier 4** (Cherry through Dekopon). This is controlled by the `maxDropTier` field on the DropController Inspector (default value: `4`).
+The `DropController` only spawns fruits from **tier 0 through maxDropTier** (default: **2**, Cherry through Grape). Students increase this as they add more fruits (up to 4 once Dekopon exists). This is controlled by the `maxDropTier` field on the DropController Inspector.
 
 | Tier | Fruit | Can Be Dropped? |
 |---:|---|---|
@@ -111,7 +111,7 @@ Follow these steps for **each** new fruit class you create. Repeat this process 
 3. **Important:** Add the **specific derived class** (Orange), not the base `Fruit` class
 
 ### Step 5: Save as Prefab
-1. Create a folder for prefabs if one does not exist (e.g., `Assets/Prefabs/Fruits/`)
+1. Create a folder for prefabs if one does not exist (e.g., `Assets/_Project/Prefabs/Fruits/`)
 2. Drag the GameObject from the **Hierarchy** into that folder in the **Project** window
 3. This creates a prefab asset
 4. Delete the instance from the Hierarchy (the prefab in the Project window is what matters)

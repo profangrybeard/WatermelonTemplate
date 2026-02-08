@@ -125,7 +125,7 @@ A student wrote the code for a new fruit class (e.g., Orange.cs), but when two G
 The student created the script and possibly the prefab, but did not assign the prefab to the correct slot in the FruitFactory Inspector.
 
 ### Fix
-1. Confirm the fruit prefab exists in the Assets/Prefabs/ folder (or wherever prefabs are stored).
+1. Confirm the fruit prefab exists in the `Assets/_Project/Prefabs/Fruits/` folder.
 2. Select the FruitFactory GameObject in the scene Hierarchy.
 3. In the Inspector, find the Fruit Prefabs array.
 4. Drag the fruit prefab into the correct slot:
@@ -221,7 +221,7 @@ The game runs but crashes or shows errors like:
 
    ```
    NullReferenceException: Object reference not set to an instance of an object
-   Fruit.ApplyFruitProperties() (at Assets/Scripts/Fruits/Fruit.cs:...)
+   Fruit.ApplyFruitProperties() (at Assets/_Project/Scripts/Fruits/Fruit.cs:...)
    ```
 
 ### Cause A: Forgot to call base.Awake()

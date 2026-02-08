@@ -194,8 +194,8 @@ public class GameManager : MonoBehaviour
                 newFruit.SetPhysicsEnabled(true);
                 RegisterFruit(newFruit);
 
-                // Update highest fruit display
-                if (scoreManager != null)
+                // Update highest fruit display only if this is a new best
+                if (scoreManager != null && newFruit.GetTier() >= GetHighestTier())
                 {
                     scoreManager.UpdateHighestFruit(newFruit.GetFruitName());
                 }

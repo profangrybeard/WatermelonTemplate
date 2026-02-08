@@ -14,7 +14,7 @@ You have the scripts and nothing else. This guide walks you through setting up t
 2. Click **Open** and navigate to the WatermelonTemplate folder
 3. Unity 6000.0.63f1 should be selected (or your matching version)
 4. Open the project — it will compile the scripts automatically
-5. Open `Assets/Scenes/SampleScene.unity`
+5. Open `Assets/_Project/Scenes/GameScene.unity`
 
 ---
 
@@ -69,7 +69,7 @@ Leave the Inspector references empty for now — we'll wire them up after creati
    - Drop Line Y: 4
    - Min X: -2.5
    - Max X: 2.5
-   - Max Drop Tier: 4 (change to **2** for now — only Cherry/Strawberry/Grape exist)
+   - Max Drop Tier: **2** (default — only Cherry/Strawberry/Grape exist at start)
    - Keyboard Aim Speed: 5
 
 ---
@@ -136,7 +136,7 @@ Fruits need a circle sprite. You can create one or use Unity's built-in:
 ### Option B: Create Your Own
 1. In any image editor, create a white circle on transparent background (128x128 px is fine)
 2. Save as PNG
-3. Drag into `Assets/Sprites/` folder (create the folder first)
+3. Drag into `Assets/_Project/Sprites/` folder (create the folder first)
 4. In Import Settings: Texture Type → **Sprite (2D and UI)**, Pixels Per Unit → 128
 5. Click **Apply**
 
@@ -169,8 +169,8 @@ Fruits need a circle sprite. You can create one or use Unity's built-in:
 7. **Add Component** → search for **Cherry** → add the Cherry script
 
 ### Save as Prefab:
-8. Create the folder `Assets/Prefabs/` if it doesn't exist
-9. Drag the **Cherry** GameObject from the Hierarchy into `Assets/Prefabs/`
+8. Create the folder `Assets/_Project/Prefabs/Fruits/` if it doesn't exist
+9. Drag the **Cherry** GameObject from the Hierarchy into `Assets/_Project/Prefabs/Fruits/`
 10. A prefab file appears — this is your Cherry prefab
 11. **Delete the Cherry GameObject from the Hierarchy** (the prefab is saved)
 
@@ -180,7 +180,7 @@ Fruits need a circle sprite. You can create one or use Unity's built-in:
 
 **Shortcut: Duplicate the Cherry prefab and modify it.**
 
-1. In `Assets/Prefabs/`, select the Cherry prefab
+1. In `Assets/_Project/Prefabs/Fruits/`, select the Cherry prefab
 2. **Ctrl+D** to duplicate it
 3. Rename the duplicate to **Strawberry**
 4. Double-click **Strawberry** to open the prefab editor
@@ -307,18 +307,29 @@ DropController               [DropController]
 
 ```
 Assets/
-  Prefabs/
-    Cherry.prefab
-    Strawberry.prefab
-    Grape.prefab
-  Scenes/
-    SampleScene.unity
-  Scripts/
-    Fruits/        (Fruit.cs + 11 derived classes)
-    Managers/      (GameManager.cs, FruitFactory.cs, ScoreManager.cs)
-    Player/        (DropController.cs)
-    Utils/         (ContainerSetup.cs)
-    README.md
+  _Project/
+    Animations/
+    Audio/
+      Music/
+      SFX/
+    Fonts/
+    Input/
+      InputSystem_Actions.inputactions
+    Materials/
+    Prefabs/
+      Fruits/
+        Cherry.prefab
+        Strawberry.prefab
+        Grape.prefab
+    Scenes/
+      GameScene.unity
+    Scripts/
+      Fruits/        (Fruit.cs + 11 derived classes)
+      Managers/      (GameManager.cs, FruitFactory.cs, ScoreManager.cs)
+      Player/        (DropController.cs)
+      Utils/         (ContainerSetup.cs)
+      README.md
+    Sprites/
 ```
 
 ---

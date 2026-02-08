@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "Bash(git -C \"C:\\\\Users\\\\rinds\\\\.claude-worktrees\\\\WatermelonTemplate\\\\zen-pare\" worktree list)",
+      "Bash(git -C \"C:\\\\Users\\\\rinds\\\\.claude-worktrees\\\\WatermelonTemplate\\\\zen-pare\" remote -v)",
+      "Bash(git -C \"C:\\\\Users\\\\rinds\\\\.claude-worktrees\\\\WatermelonTemplate\\\\zen-pare\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\rinds\\\\.claude-worktrees\\\\WatermelonTemplate\\\\zen-pare\" log --oneline -5)",
+      "Bash(git -C \"C:\\\\Users\\\\rinds\\\\.claude-worktrees\\\\WatermelonTemplate\\\\zen-pare\" diff --stat HEAD)",
+      "Bash(git add:*)"
+    ]
+  }
+}

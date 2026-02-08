@@ -79,6 +79,9 @@ public class ContainerSetup : MonoBehaviour
     // WALL CREATION
     // ============================================
 
+    // Cached sprite shared by all walls (created once in the first CreateWall call)
+    private Sprite wallSprite;
+
     /// <summary>
     /// Creates a single wall as a child GameObject with a BoxCollider2D and SpriteRenderer.
     /// </summary>
@@ -89,9 +92,13 @@ public class ContainerSetup : MonoBehaviour
         wall.transform.parent = transform;
         wall.transform.localPosition = localPosition;
 
-        // Add a BoxCollider2D for physics
+        // Scale the wall to the desired size
+        // The collider and sprite are both 1x1 in local space,
+        // so localScale controls the actual dimensions of both.
+        wall.transform.localScale = new Vector3(size.x, size.y, 1f);
+
+        // Add a BoxCollider2D for physics (1x1 local, scaled by transform)
         BoxCollider2D collider = wall.AddComponent<BoxCollider2D>();
-        collider.size = size;
 
         // Apply physics material if one is assigned
         if (wallMaterial != null)
@@ -103,9 +110,12 @@ public class ContainerSetup : MonoBehaviour
         SpriteRenderer renderer = wall.AddComponent<SpriteRenderer>();
         renderer.color = wallColor;
 
-        // Use Unity's built-in white square sprite and scale it to match the collider
-        renderer.sprite = CreateSquareSprite();
-        wall.transform.localScale = new Vector3(size.x, size.y, 1f);
+        // Create the shared sprite once, reuse for all walls
+        if (wallSprite == null)
+        {
+            wallSprite = CreateSquareSprite();
+        }
+        renderer.sprite = wallSprite;
 
         // Set sorting order behind fruits
         renderer.sortingOrder = -1;

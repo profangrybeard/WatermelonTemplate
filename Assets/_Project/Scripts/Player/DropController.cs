@@ -41,8 +41,8 @@ public class DropController : MonoBehaviour
     [Tooltip("Right boundary for aiming (inside container)")]
     public float maxX = 2.5f;
 
-    [Tooltip("Highest tier that can be randomly dropped (0=Cherry through 4=Dekopon)")]
-    public int maxDropTier = 4;
+    [Tooltip("Highest tier that can be randomly dropped (0=Cherry, 1=Strawberry, 2=Grape)")]
+    public int maxDropTier = 2;
 
     [Header("Aim Settings")]
     [Tooltip("How fast the aim moves with keyboard input")]
@@ -133,18 +133,12 @@ public class DropController : MonoBehaviour
 
     /// <summary>
     /// Reads mouse and keyboard input to set the aim position.
-    /// Supports both input methods simultaneously.
+    /// Mouse movement sets the aim position directly.
+    /// Keyboard nudges the aim position incrementally.
     /// </summary>
     void HandleInput()
     {
-        // Mouse input: convert screen X to world X
-        if (Input.mousePresent)
-        {
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            aimX = mouseWorldPos.x;
-        }
-
-        // Keyboard input: A/D or Arrow Keys to move aim
+        // Keyboard input: A/D or Arrow Keys to nudge aim
         float keyboardInput = 0f;
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
@@ -157,7 +151,14 @@ public class DropController : MonoBehaviour
 
         if (keyboardInput != 0f)
         {
+            // Keyboard: nudge aim left or right
             aimX += keyboardInput * keyboardAimSpeed * Time.deltaTime;
+        }
+        else if (Input.mousePresent)
+        {
+            // Mouse: set aim to cursor position (only when keyboard is not active)
+            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            aimX = mouseWorldPos.x;
         }
 
         // Clamp aim within container bounds

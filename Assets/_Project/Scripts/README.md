@@ -145,15 +145,46 @@ public override void OnMerge()
 // Change class declaration:
 public abstract class Fruit : MonoBehaviour
 
-// Change select methods:
-public abstract int GetTier();        // was: public virtual int GetTier() { return tier; }
-public abstract int GetPointValue();  // was: public virtual int GetPointValue() { return pointValue; }
+// Add a new abstract method:
+protected abstract void InitializeFruitProperties();
+
+// Update Awake() to call it:
+protected virtual void Awake()
+{
+    InitializeFruitProperties();  // Derived classes MUST implement this
+    rb = GetComponent<Rigidbody2D>();
+    circleCollider = GetComponent<CircleCollider2D>();
+    spriteRenderer = GetComponent<SpriteRenderer>();
+}
+```
+
+**Derived classes change from:**
+```csharp
+protected override void Awake()
+{
+    tier = 0;
+    fruitName = "Cherry";
+    // ... set values ...
+    base.Awake();
+}
+```
+
+**To:**
+```csharp
+protected override void InitializeFruitProperties()
+{
+    tier = 0;
+    fruitName = "Cherry";
+    // ... set values ...
+}
+// No Awake() override needed. No base.Awake() call needed.
 ```
 
 **Teaching Points:**
 - `virtual` = CAN override (optional)
 - `abstract` = MUST override (required, compiler enforces it)
 - Cannot instantiate abstract class directly
+- Forgetting to implement `InitializeFruitProperties()` causes a compiler error
 
 ---
 
@@ -217,7 +248,7 @@ public abstract int GetPointValue();  // was: public virtual int GetPointValue()
 
 ### "Wrong size or color"
 - Verify fruitSize and fruitColor values in derived Awake()
-- Make sure values are set BEFORE base.Awake()
+- Make sure values are set before calling base.Awake()
 
 ---
 

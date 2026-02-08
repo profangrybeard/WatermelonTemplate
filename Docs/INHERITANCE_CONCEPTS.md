@@ -58,7 +58,7 @@ Every definition below includes the exact file and line where you can see the co
 **Definition:** A base class is a class that other classes inherit from. It defines the
 shared fields and methods that all derived classes receive automatically.
 
-**In our game:** `Fruit` is the base class. It lives in `Assets/Scripts/Fruits/Fruit.cs`.
+**In our game:** `Fruit` is the base class. It lives in `Assets/_Project/Scripts/Fruits/Fruit.cs`.
 Every fruit in the game -- Cherry, Strawberry, Grape, all the way to Watermelon --
 inherits from `Fruit`.
 
@@ -447,21 +447,21 @@ produce an error if they do not. An abstract method can only exist inside an abs
 public abstract class Fruit : MonoBehaviour
 {
     // Abstract method: NO body, NO default -- every fruit MUST implement this
-    protected abstract void InitializeFruit();
+    protected abstract void InitializeFruitProperties();
 
     protected virtual void Awake()
     {
-        InitializeFruit();       // Calls the derived version (guaranteed to exist)
+        InitializeFruitProperties();  // Calls the derived version (guaranteed to exist)
         rb = GetComponent<Rigidbody2D>();
         circleCollider = GetComponent<CircleCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 }
 
-// Cherry.cs MUST implement InitializeFruit() -- compiler error if it does not:
+// Cherry.cs MUST implement InitializeFruitProperties() -- compiler error if it does not:
 public class Cherry : Fruit
 {
-    protected override void InitializeFruit()
+    protected override void InitializeFruitProperties()
     {
         tier = 0;
         fruitName = "Cherry";

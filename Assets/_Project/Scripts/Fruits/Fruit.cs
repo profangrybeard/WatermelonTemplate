@@ -1,6 +1,6 @@
 /*
  * GAME 220: Watermelon Merge Template
- * Sessions 1-6: Fruit Base Class
+ * Sessions 1-5: Fruit Base Class
  *
  * TEACHING FOCUS:
  * - INHERITANCE: This is the BASE CLASS that all fruits inherit from
@@ -65,11 +65,8 @@ public class Fruit : MonoBehaviour
     // own Awake() method. For example, Cherry sets tier = 0, fruitSize = 0.5f, etc.
     // =====================================================================
 
-    [Header("Fruit Identity (Set by Derived Class)")]
     protected int tier = 0;                      // Position in the merge chain (0=Cherry, 10=Watermelon)
     protected string fruitName = "Fruit";        // Display name for UI and debug messages
-
-    [Header("Fruit Properties (Set by Derived Class)")]
     protected int pointValue = 0;                // Score points awarded when this fruit is part of a merge
     protected float fruitSize = 1f;              // Transform.localScale multiplier (bigger number = bigger fruit)
     protected Color fruitColor = Color.white;    // SpriteRenderer color tint
@@ -107,8 +104,11 @@ public class Fruit : MonoBehaviour
     // this base version runs instead.
     //
     // Awake() is virtual so that derived classes (Cherry, Grape, etc.)
-    // can override it to set their own tier, size, color, and points
-    // BEFORE the base class caches component references.
+    // can override it to set their own tier, size, color, and points.
+    // The full startup flow is:
+    //   1. Derived Awake() sets field values (tier, fruitSize, etc.)
+    //   2. Derived Awake() calls base.Awake() to cache component references
+    //   3. Start() calls ApplyFruitProperties() to apply values to Unity components
     //
     // Compare with 'abstract' (Session 5 stretch): an abstract method
     // has NO default -- derived classes MUST override it.
@@ -116,7 +116,7 @@ public class Fruit : MonoBehaviour
 
     /// <summary>
     /// Caches component references. Derived classes override this to set
-    /// their specific values (tier, size, color, etc.) BEFORE calling base.Awake().
+    /// their specific values (tier, size, color, etc.) and then call base.Awake().
     /// </summary>
     protected virtual void Awake()
     {
@@ -197,14 +197,6 @@ public class Fruit : MonoBehaviour
     public virtual int GetPointValue()
     {
         return pointValue;
-    }
-
-    /// <summary>
-    /// Returns the visual size multiplier for this fruit.
-    /// </summary>
-    public virtual float GetFruitSize()
-    {
-        return fruitSize;
     }
 
     /// <summary>

@@ -81,7 +81,7 @@ This follows the same philosophy as the SlitherTemplate: **give students a worki
 **Teaching Points:**
 - Live-code `Orange.cs` together as a class, following `Cherry.cs` line by line
 - Students complete `Dekopon.cs` and `Apple.cs` independently (or in pairs)
-- Create prefabs for each new fruit (see FRUIT_REFERENCE.md for prefab setup steps)
+- Create prefabs for each new fruit (see Docs/FRUIT_REFERENCE.md for prefab setup steps)
 - Assign prefabs to `FruitFactory` inspector slots 3, 4, and 5
 - Test after EACH fruit -- do not batch all three before testing
 - Discuss: Why does `base.Awake()` need to be called? What happens if you forget it?
@@ -168,9 +168,10 @@ public override void OnMerge()
 
 **Teaching Points:**
 - Change `public class Fruit` to `public abstract class Fruit`
-- Change `protected virtual void Awake()` to `protected abstract void Awake()` (remove the body)
-- Or: create a new abstract method like `protected abstract void SetFruitData()` called from `Awake()`
-- Show the compiler errors that appear when a derived class does NOT override an abstract method
+- Add a new abstract method: `protected abstract void InitializeFruitProperties();`
+- Update `Awake()` to call `InitializeFruitProperties()` before caching components
+- Derived classes replace their `Awake()` override with an `InitializeFruitProperties()` override (no more `base.Awake()` needed)
+- Show the compiler errors that appear when a derived class does NOT implement `InitializeFruitProperties()`
 - Discuss: When do you want `virtual` (optional override) vs. `abstract` (required override)?
 - Discuss: Why would a game designer want to prevent someone from creating a generic "Fruit" with no data?
 
@@ -318,8 +319,10 @@ Students choose from this menu based on interest and skill level. These are sugg
 
 ### Session 5 Checklist (Stretch)
 - [ ] Changed `Fruit` class declaration to `public abstract class Fruit`
-- [ ] Identified which methods to make abstract vs. keep virtual
-- [ ] Confirmed all derived classes still compile (no missing overrides)
+- [ ] Added `protected abstract void InitializeFruitProperties();` to `Fruit.cs`
+- [ ] Updated `Awake()` to call `InitializeFruitProperties()` before caching components
+- [ ] Replaced `Awake()` overrides in all derived classes with `InitializeFruitProperties()` overrides
+- [ ] Confirmed all derived classes compile (no missing overrides)
 - [ ] Can answer: What is the difference between `virtual` and `abstract`?
 
 ### Sessions 6-8 Checklist

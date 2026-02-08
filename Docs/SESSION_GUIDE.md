@@ -90,9 +90,9 @@ Use these during the session to check understanding. Have students answer in dis
 
 | File | Path |
 |---|---|
-| Orange.cs | Assets/Scripts/Fruits/Orange.cs |
-| Dekopon.cs | Assets/Scripts/Fruits/Dekopon.cs |
-| Apple.cs | Assets/Scripts/Fruits/Apple.cs |
+| Orange.cs | Assets/_Project/Scripts/Fruits/Orange.cs |
+| Dekopon.cs | Assets/_Project/Scripts/Fruits/Dekopon.cs |
+| Apple.cs | Assets/_Project/Scripts/Fruits/Apple.cs |
 
 ### Learning Goal
 
@@ -168,7 +168,7 @@ After writing the code, students must create prefabs for each new fruit and regi
    - Rigidbody2D -- leave defaults (Dynamic body type, gravity scale 1).
    - CircleCollider2D -- leave defaults.
    - Orange script -- drag the Orange.cs script onto the GameObject.
-3. **Drag the GameObject** from the Hierarchy into the Assets/Prefabs/ folder (create this folder if it does not exist) to create a prefab.
+3. **Drag the GameObject** from the Hierarchy into the `Assets/_Project/Prefabs/Fruits/` folder to create a prefab.
 4. **Delete the GameObject** from the scene (the prefab is saved in the project).
 5. **Assign the prefab** to the FruitFactory:
    - Select the FruitFactory GameObject in the scene.
@@ -201,11 +201,11 @@ After writing the code, students must create prefabs for each new fruit and regi
 
 | File | Path | Tier |
 |---|---|---|
-| Pear.cs | Assets/Scripts/Fruits/Pear.cs | 6 |
-| Peach.cs | Assets/Scripts/Fruits/Peach.cs | 7 |
-| Pineapple.cs | Assets/Scripts/Fruits/Pineapple.cs | 8 |
-| Melon.cs | Assets/Scripts/Fruits/Melon.cs | 9 |
-| Watermelon.cs | Assets/Scripts/Fruits/Watermelon.cs | 10 (special) |
+| Pear.cs | Assets/_Project/Scripts/Fruits/Pear.cs | 6 |
+| Peach.cs | Assets/_Project/Scripts/Fruits/Peach.cs | 7 |
+| Pineapple.cs | Assets/_Project/Scripts/Fruits/Pineapple.cs | 8 |
+| Melon.cs | Assets/_Project/Scripts/Fruits/Melon.cs | 9 |
+| Watermelon.cs | Assets/_Project/Scripts/Fruits/Watermelon.cs | 10 (special) |
 
 ### Solution Code
 

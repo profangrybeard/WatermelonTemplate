@@ -27,13 +27,12 @@ Both templates follow the same pedagogical approach called **"MVP with Scaffolds
 - **Total C# Scripts:** 17 files (1 base class + 3 given derived + 8 scaffold derived + 5 system scripts)
 - **Total Lines of Code:** 2,108 lines (including extensive teaching comments)
 - **Comment Density:** ~44% (matches SlitherTemplate)
-- **Documentation Files:** 7 markdown files (6 at repo root + 1 inside Assets/Scripts/)
+- **Documentation Files:** 7 markdown files (6 in Docs/ folder + 1 inside Assets/_Project/Scripts/)
 - **Unity Version:** 6000.0.63f1
 - **Render Pipeline:** Built-in 2D
 - **Packages:** Input System 1.16.0, UGUI 2.0.0 (same as SlitherTemplate)
 - **Repository Location:** `C:\SCAD\Projects\WatermelonTemplate`
-- **Worktree Location:** `C:\Users\rinds\.claude-worktrees\WatermelonTemplate\optimistic-mayer`
-- **Git State:** main branch, 2 commits (Initial + vanilla unity). All new files are untracked — nothing committed yet.
+- **Git State:** main branch, 3 commits (Initial + vanilla unity + rough draft). Scripts and docs committed.
 
 ---
 
@@ -54,7 +53,7 @@ These decisions were made through multiple rounds of Q&A before implementation:
 
 ### Inheritance Depth
 1. **Start with 2-level hierarchy** (Fruit base → concrete derived classes). No intermediate abstract mid-tier classes.
-2. **Abstract refactor in Session 5 as a stretch goal** — convert `Fruit` from `class` to `abstract class`, convert select virtual methods to abstract. Only for students who finish everything else.
+2. **Abstract refactor in Session 5 as a stretch goal** — convert `Fruit` from `class` to `abstract class`, add `protected abstract void InitializeFruitProperties()` called from `Awake()`. Only for students who finish everything else.
 3. **Interfaces are not covered** — can wait for another course.
 
 ### Must-Have Concepts
@@ -105,40 +104,51 @@ Tier  Class          Size   Points  Color                              Merge Int
 ```
 WatermelonTemplate/
 ├── Assets/
-│   ├── Scenes/
-│   │   └── SampleScene.unity          (existing, needs manual setup)
-│   ├── Prefabs/                        (needs to be created — see SETUP_INSTRUCTIONS.md)
-│   ├── Scripts/
-│   │   ├── Fruits/
-│   │   │   ├── Fruit.cs               (388 lines) Base class — fully pre-built
-│   │   │   ├── Cherry.cs              (122 lines) Given complete — reference #1
-│   │   │   ├── Strawberry.cs          (45 lines)  Given complete — reference #2
-│   │   │   ├── Grape.cs               (30 lines)  Given complete — reference #3
-│   │   │   ├── Orange.cs              (43 lines)  TODO scaffold — Session 2
-│   │   │   ├── Dekopon.cs             (44 lines)  TODO scaffold — Session 2
-│   │   │   ├── Apple.cs               (44 lines)  TODO scaffold — Session 2
-│   │   │   ├── Pear.cs                (41 lines)  TODO scaffold — Session 3
-│   │   │   ├── Peach.cs               (41 lines)  TODO scaffold — Session 3
-│   │   │   ├── Pineapple.cs           (41 lines)  TODO scaffold — Session 3
-│   │   │   ├── Melon.cs               (41 lines)  TODO scaffold — Session 3
-│   │   │   └── Watermelon.cs          (48 lines)  TODO scaffold + bonus override — Session 3
-│   │   ├── Player/
-│   │   │   └── DropController.cs      (294 lines) Pre-built — mouse + keyboard input
-│   │   ├── Managers/
-│   │   │   ├── GameManager.cs         (402 lines) Pre-built — List<Fruit>, merge execution
-│   │   │   ├── FruitFactory.cs        (173 lines) Pre-built — polymorphic factory
-│   │   │   └── ScoreManager.cs        (138 lines) Pre-built — UI score display
-│   │   ├── Utils/
-│   │   │   └── ContainerSetup.cs      (173 lines) Pre-built — 3-wall box container
-│   │   └── README.md                  (224 lines) Concise teaching guide inside Scripts/
-│   └── InputSystem_Actions.inputactions (existing from vanilla Unity)
-├── README.md                           (348 lines) Main teaching guide
-├── SETUP_INSTRUCTIONS.md               (349 lines) Unity setup from scripts-only to playable
-├── INHERITANCE_CONCEPTS.md             (574 lines) OOP reference with game examples
-├── SESSION_GUIDE.md                    (764 lines) Per-session walkthrough with solutions
-├── FRUIT_REFERENCE.md                  (163 lines) All 11 fruit data + prefab instructions
-├── TROUBLESHOOTING.md                  (500 lines) Common student issues and fixes
-└── IMPLEMENTATION_SUMMARY.md           (this file) Full project context
+│   └── _Project/
+│       ├── Animations/
+│       ├── Audio/
+│       │   ├── Music/
+│       │   └── SFX/
+│       ├── Fonts/
+│       ├── Input/
+│       │   └── InputSystem_Actions.inputactions
+│       ├── Materials/
+│       ├── Prefabs/
+│       │   └── Fruits/                 (created during setup — see SETUP_INSTRUCTIONS.md)
+│       ├── Scenes/
+│       │   └── GameScene.unity         (needs manual setup)
+│       ├── Scripts/
+│       │   ├── Fruits/
+│       │   │   ├── Fruit.cs           Base class — fully pre-built
+│       │   │   ├── Cherry.cs          Given complete — reference #1
+│       │   │   ├── Strawberry.cs      Given complete — reference #2
+│       │   │   ├── Grape.cs           Given complete — reference #3
+│       │   │   ├── Orange.cs          TODO scaffold — Session 2
+│       │   │   ├── Dekopon.cs         TODO scaffold — Session 2
+│       │   │   ├── Apple.cs           TODO scaffold — Session 2
+│       │   │   ├── Pear.cs            TODO scaffold — Session 3
+│       │   │   ├── Peach.cs           TODO scaffold — Session 3
+│       │   │   ├── Pineapple.cs       TODO scaffold — Session 3
+│       │   │   ├── Melon.cs           TODO scaffold — Session 3
+│       │   │   └── Watermelon.cs      TODO scaffold + bonus override — Session 3
+│       │   ├── Player/
+│       │   │   └── DropController.cs  Pre-built — mouse + keyboard input
+│       │   ├── Managers/
+│       │   │   ├── GameManager.cs     Pre-built — List<Fruit>, merge execution
+│       │   │   ├── FruitFactory.cs    Pre-built — polymorphic factory
+│       │   │   └── ScoreManager.cs    Pre-built — UI score display
+│       │   ├── Utils/
+│       │   │   └── ContainerSetup.cs  Pre-built — 3-wall box container
+│       │   └── README.md              Concise teaching guide inside Scripts/
+│       └── Sprites/
+├── Docs/
+│   ├── SETUP_INSTRUCTIONS.md          Unity setup from scripts-only to playable
+│   ├── INHERITANCE_CONCEPTS.md        OOP reference with game examples
+│   ├── SESSION_GUIDE.md               Per-session walkthrough with solutions
+│   ├── FRUIT_REFERENCE.md             All 11 fruit data + prefab instructions
+│   ├── TROUBLESHOOTING.md             Common student issues and fixes
+│   └── IMPLEMENTATION_SUMMARY.md      (this file) Full project context
+└── README.md                          Main teaching guide
 ```
 
 ---
@@ -183,7 +193,6 @@ private bool hasMerged = false;
 ```csharp
 public virtual int GetTier()                // returns tier
 public virtual int GetPointValue()          // returns pointValue
-public virtual float GetFruitSize()         // returns fruitSize
 public virtual string GetFruitName()        // returns fruitName
 public virtual int GetMergeResultTier()     // returns tier + 1 (Watermelon overrides → -1)
 public virtual void OnMerge()               // default Debug.Log (Session 4: students override)
@@ -344,7 +353,7 @@ Same pattern as SlitherTemplate's ScoreManager. Uses `UnityEngine.UI.Text` (Lega
 - **Student-driven features:** Continue
 
 ### Session 5: Abstract Refactor (Stretch)
-- **Student code work:** Convert `Fruit` to `abstract class`, convert select virtual methods to abstract
+- **Student code work:** Convert `Fruit` to `abstract class`, add `InitializeFruitProperties()` abstract method, update all derived classes
 - **Teaching focus:** Virtual (CAN override) vs abstract (MUST override)
 - **Only for students** who have finished all 11 fruits and the merge system
 - **Student-driven features:** Continue
@@ -374,8 +383,10 @@ Matches SlitherTemplate exactly:
 ### DONE:
 - All 17 C# scripts written and in place
 - All 7 documentation files written
-- Folder structure matches SlitherTemplate conventions
-- Both repo and worktree are in sync
+- Professional directory structure with standard Unity folders
+- All files committed to git
+- Assets organized: Animations, Audio, Fonts, Input, Materials, Prefabs/Fruits, Scenes, Scripts, Sprites
+- Documentation consolidated in Docs/ folder
 
 ### NOT YET DONE (requires Unity Editor):
 - Scene setup (camera, GameObjects, component assignment, Inspector references)
@@ -383,13 +394,8 @@ Matches SlitherTemplate exactly:
 - FruitFactory prefab slot assignment (slots 0-2)
 - Canvas/UI creation (ScoreText, GameOverText, HighestFruitText)
 - Physics tuning (gravity, iterations, drag, optional PhysicsMaterial2D)
-- Git commit of all new files
 
-See `SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide.
-
-### NOT YET DONE (optional):
-- Materials folder (unlike SlitherTemplate, fruits set color via script so materials aren't strictly needed)
-- Prefabs folder (needs to be created during setup)
+See `Docs/SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide.
 
 ---
 
@@ -422,13 +428,13 @@ See `SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide.
 
 | Document | Lines | Purpose |
 |----------|-------|---------|
-| README.md | 348 | Main teaching guide |
-| SETUP_INSTRUCTIONS.md | 349 | Unity setup from scripts-only |
-| INHERITANCE_CONCEPTS.md | 574 | OOP reference with game examples |
-| SESSION_GUIDE.md | 764 | Per-session walkthrough with solutions |
-| FRUIT_REFERENCE.md | 163 | All 11 fruit data table |
-| TROUBLESHOOTING.md | 500 | Common issues and fixes |
-| Assets/Scripts/README.md | 224 | Concise in-code teaching guide |
+| README.md | 348 | Main teaching guide (repo root) |
+| Docs/SETUP_INSTRUCTIONS.md | 349 | Unity setup from scripts-only |
+| Docs/INHERITANCE_CONCEPTS.md | 574 | OOP reference with game examples |
+| Docs/SESSION_GUIDE.md | 764 | Per-session walkthrough with solutions |
+| Docs/FRUIT_REFERENCE.md | 163 | All 11 fruit data table |
+| Docs/TROUBLESHOOTING.md | 500 | Common issues and fixes |
+| Assets/_Project/Scripts/README.md | 224 | Concise in-code teaching guide |
 | **TOTAL** | **2,922** | |
 
 ---
@@ -446,8 +452,8 @@ See `SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide.
 | Student TODOs | 6 for-loop blocks across 3 files | 8 derived classes + OnMerge overrides |
 | Sessions | 6 instructional | 5-6 instructional (+ abstract stretch) |
 | Folder convention | `AI/`, `Food/`, `Player/`, `Managers/`, `Utils/` | `Fruits/`, `Player/`, `Managers/`, `Utils/` |
-| Root docs | `README.md`, `SETUP_INSTRUCTIONS.md`, `IMPLEMENTATION_SUMMARY.md`, `QUICKSTART_CHECKLIST.md` | `README.md`, `SETUP_INSTRUCTIONS.md`, `IMPLEMENTATION_SUMMARY.md`, `INHERITANCE_CONCEPTS.md`, `SESSION_GUIDE.md`, `FRUIT_REFERENCE.md`, `TROUBLESHOOTING.md` |
-| Scripts README | Yes (`Assets/Scripts/README.md`) | Yes (`Assets/Scripts/README.md`) |
+| Root docs | `README.md`, `SETUP_INSTRUCTIONS.md`, `IMPLEMENTATION_SUMMARY.md`, `QUICKSTART_CHECKLIST.md` | `README.md` at root + 6 docs in `Docs/` folder |
+| Scripts README | Yes (`Assets/_Project/Scripts/README.md`) | Yes (`Assets/_Project/Scripts/README.md`) |
 | Unity version | 6000.0.63f1 | 6000.0.63f1 |
 
 ---
@@ -470,17 +476,17 @@ These items were discussed but deferred or left as student-driven choices:
 
 If you need to modify the template, these are the critical files:
 
-1. **`Assets/Scripts/Fruits/Fruit.cs`** — The base class. Any change here affects all 11 fruit types. Touch with care.
-2. **`Assets/Scripts/Fruits/Cherry.cs`** — The reference example. If you change the derived class pattern, update Cherry first, then update all scaffolds to match.
-3. **`Assets/Scripts/Managers/GameManager.cs`** — The merge execution and polymorphic query methods. This is where `MergeFruits()` lives.
-4. **`Assets/Scripts/Managers/FruitFactory.cs`** — The polymorphic factory. The prefab array indexing here must match fruit tier values.
-5. **`SETUP_INSTRUCTIONS.md`** — Must stay accurate to the current script state. Update if you change Inspector fields or component requirements.
+1. **`Assets/_Project/Scripts/Fruits/Fruit.cs`** — The base class. Any change here affects all 11 fruit types. Touch with care.
+2. **`Assets/_Project/Scripts/Fruits/Cherry.cs`** — The reference example. If you change the derived class pattern, update Cherry first, then update all scaffolds to match.
+3. **`Assets/_Project/Scripts/Managers/GameManager.cs`** — The merge execution and polymorphic query methods. This is where `MergeFruits()` lives.
+4. **`Assets/_Project/Scripts/Managers/FruitFactory.cs`** — The polymorphic factory. The prefab array indexing here must match fruit tier values.
+5. **`Docs/SETUP_INSTRUCTIONS.md`** — Must stay accurate to the current script state. Update if you change Inspector fields or component requirements.
 
 ---
 
 ## Verification Checklist
 
-After completing Unity setup (per SETUP_INSTRUCTIONS.md), verify:
+After completing Unity setup (per Docs/SETUP_INSTRUCTIONS.md), verify:
 
 - [ ] Cherry, Strawberry, Grape prefabs created with correct components
 - [ ] FruitFactory slots 0-2 assigned
