@@ -5,12 +5,9 @@
  * TEACHING FOCUS:
  * - POLYMORPHIC VARIABLE: 'currentObject' is typed as MergeObject (base class)
  *   but holds TierZero, TierOne, TierTwo, etc. (derived types)
- * - Input handling with both mouse and keyboard
- * - State management (aiming vs cooldown)
  *
  * This script handles the player's ability to aim and drop merge objects:
- * - Mouse: Move cursor left/right to aim, click to drop
- * - Keyboard: A/D or Arrow Keys to aim, Space to drop
+ * - Move mouse left/right to aim, click to drop
  * - Cooldown between drops prevents spam
  * - Creates random low-tier objects via MergeObjectFactory
  *
@@ -44,10 +41,6 @@ public class DropController : MonoBehaviour
     [Tooltip("Highest tier that can be randomly dropped (0=TierZero, 1=TierOne, 2=TierTwo)")]
     public int maxDropTier = 2;
 
-    [Header("Aim Settings")]
-    [Tooltip("How fast the aim moves with keyboard input")]
-    public float keyboardAimSpeed = 5f;
-
     // ============================================
     // REFERENCES
     // ============================================
@@ -64,24 +57,14 @@ public class DropController : MonoBehaviour
     // PRIVATE STATE
     // ============================================
 
-    // =====================================================================
     // TEACHING: POLYMORPHIC VARIABLE
-    //
-    // 'currentObject' is typed as MergeObject (the base class), but the actual
-    // object stored in it is TierZero, TierOne, TierTwo, or whatever merge object
-    // the MergeObjectFactory created.
-    //
-    // We don't need separate variables for each object type:
+    // 'currentObject' is typed as MergeObject, but holds ANY derived type.
+    // We don't need separate variables per type:
     //   TierZero currentTierZero;      // NO! Don't do this.
     //   TierOne currentTierOne;        // NO! Don't do this.
-    //   TierTwo currentTierTwo;        // NO! Don't do this.
-    //
-    // Instead, ONE variable typed as the base class handles ALL types:
+    // ONE base-class variable handles all types:
     //   MergeObject currentObject;     // YES! Holds any derived type.
-    //
-    // When we call currentObject.GetMergeObjectName(), currentObject.GetTier(), etc.,
-    // the correct derived version runs. That's polymorphism.
-    // =====================================================================
+    // When we call methods on it, the derived version runs. That's polymorphism.
     private MergeObject currentObject;
 
     private float cooldownTimer = 0f;
@@ -132,46 +115,20 @@ public class DropController : MonoBehaviour
     // ============================================
 
     /// <summary>
-    /// Reads mouse and keyboard input to set the aim position.
-    /// Mouse movement sets the aim position directly.
-    /// Keyboard nudges the aim position incrementally.
+    /// Reads mouse input to set the aim position.
     /// </summary>
     void HandleInput()
     {
-        // Keyboard input: A/D or Arrow Keys to nudge aim
-        float keyboardInput = 0f;
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-        {
-            keyboardInput = -1f;
-        }
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-        {
-            keyboardInput = 1f;
-        }
-
-        if (keyboardInput != 0f)
-        {
-            // Keyboard: nudge aim left or right
-            aimX += keyboardInput * keyboardAimSpeed * Time.deltaTime;
-        }
-        else if (Input.mousePresent)
-        {
-            // Mouse: set aim to cursor position (only when keyboard is not active)
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            aimX = mouseWorldPos.x;
-        }
-
-        // Clamp aim within container bounds
-        aimX = Mathf.Clamp(aimX, minX, maxX);
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        aimX = Mathf.Clamp(mouseWorldPos.x, minX, maxX);
     }
 
     /// <summary>
     /// Returns true if the player wants to drop the current object.
-    /// Supports mouse click and spacebar.
     /// </summary>
     bool ShouldDrop()
     {
-        return Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space);
+        return Input.GetMouseButtonDown(0);
     }
 
 
@@ -261,35 +218,5 @@ public class DropController : MonoBehaviour
             Destroy(currentObject.gameObject);
             currentObject = null;
         }
-    }
-
-
-    // ============================================
-    // EDITOR VISUALIZATION
-    // ============================================
-
-    void OnDrawGizmos()
-    {
-        // Draw the drop line
-        Gizmos.color = new Color(1f, 1f, 0f, 0.5f); // Semi-transparent yellow
-        Gizmos.DrawLine(
-            new Vector3(minX, dropLineY, 0f),
-            new Vector3(maxX, dropLineY, 0f)
-        );
-
-        // Draw the current aim position
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(new Vector3(aimX, dropLineY, 0f), 0.2f);
-
-        // Draw the aim boundaries
-        Gizmos.color = new Color(1f, 1f, 0f, 0.3f);
-        Gizmos.DrawLine(
-            new Vector3(minX, dropLineY - 0.5f, 0f),
-            new Vector3(minX, dropLineY + 0.5f, 0f)
-        );
-        Gizmos.DrawLine(
-            new Vector3(maxX, dropLineY - 0.5f, 0f),
-            new Vector3(maxX, dropLineY + 0.5f, 0f)
-        );
     }
 }

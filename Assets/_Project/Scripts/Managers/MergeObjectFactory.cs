@@ -25,23 +25,11 @@ public class MergeObjectFactory : MonoBehaviour
     // OBJECT PREFAB ARRAY
     // ============================================
 
-    // =====================================================================
     // TEACHING: ARRAY INDEXED BY TIER
-    //
-    // Each slot in this array holds the prefab for one tier:
-    //   objectPrefabs[0] = TierZero prefab
-    //   objectPrefabs[1] = TierOne prefab
-    //   objectPrefabs[2] = TierTwo prefab
-    //   objectPrefabs[3] = (your class here)
-    //   objectPrefabs[4] = (your class here)
-    //
-    // This is a simple but powerful design: to create an object of any tier,
-    // just index into the array. No switch statement. No if/else chain.
-    // The array IS the mapping from tier number to prefab.
-    //
-    // Need more tiers? Just expand the array size in the Inspector and
-    // create more derived classes!
-    // =====================================================================
+    //   objectPrefabs[0] = TierZero, [1] = TierOne, [2] = TierTwo, [3+] = yours
+    // To create an object of any tier, just index into the array.
+    // No switch statement. No if/else chain. The array IS the mapping.
+    // Need more tiers? Expand the array in the Inspector and create more classes!
 
     [Header("Object Prefabs (One Per Tier)")]
     [Tooltip("Drag each merge object prefab into the correct slot. Slot 0 = TierZero, Slot 1 = TierOne, etc.")]
@@ -52,28 +40,13 @@ public class MergeObjectFactory : MonoBehaviour
     // FACTORY METHODS
     // ============================================
 
-    // =====================================================================
     // TEACHING: POLYMORPHIC RETURN TYPE
-    //
-    // CreateObject() returns 'MergeObject' (the base class), but the actual
-    // object it creates is TierZero, TierOne, TierTwo, etc. (a derived class).
-    //
-    // The caller doesn't need to know which specific type was created.
-    // It just works with the MergeObject reference, and polymorphism ensures
-    // the correct derived methods run when called.
-    //
-    // Example:
+    // CreateObject() returns MergeObject (base class), but the actual object
+    // is TierZero, TierOne, etc. (derived class). The caller doesn't need to
+    // know which type -- polymorphism ensures the correct methods run.
     //   MergeObject obj = factory.CreateObject(0);  // Creates a TierZero
     //   obj.GetTier();       // Returns 0 (TierZero's version runs)
     //   obj.GetObjectName(); // Returns "TierZero" (TierZero's version runs)
-    //
-    //   MergeObject obj = factory.CreateObject(2);  // Creates a TierTwo
-    //   obj.GetTier();       // Returns 2 (TierTwo's version runs)
-    //   obj.GetObjectName(); // Returns "TierTwo" (TierTwo's version runs)
-    //
-    // Same variable type (MergeObject), same method calls, different results.
-    // That's polymorphism.
-    // =====================================================================
 
     /// <summary>
     /// Creates a merge object of the specified tier and returns it as a MergeObject reference.
@@ -100,17 +73,10 @@ public class MergeObjectFactory : MonoBehaviour
         // Create a copy of the prefab
         GameObject obj = Instantiate(objectPrefabs[tier]);
 
-        // =====================================================================
-        // TEACHING: GetComponent<MergeObject>() WITH POLYMORPHISM
-        //
-        // The prefab has a specific script: TierZero, TierOne, TierTwo, etc.
-        // But GetComponent<MergeObject>() FINDS IT because they all inherit
-        // from MergeObject.
-        //
-        // The returned reference is typed as MergeObject (base class), but the
-        // actual object retains its derived type. When you call methods on it,
-        // the derived version runs. This is polymorphism through GetComponent.
-        // =====================================================================
+        // TEACHING: GetComponent<MergeObject>() finds ANY derived type (TierZero,
+        // TierOne, etc.) because they all inherit from MergeObject.
+        // The returned reference is typed as MergeObject, but the actual object
+        // retains its derived type. That's polymorphism through GetComponent.
         MergeObject mergeObject = obj.GetComponent<MergeObject>();
 
         if (mergeObject == null)

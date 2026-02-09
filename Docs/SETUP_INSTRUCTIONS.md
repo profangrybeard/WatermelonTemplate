@@ -29,19 +29,35 @@ You have the scripts and nothing else. This guide walks you through setting up t
 
 ---
 
-## Step 3: Create the Container
+## Step 3: Create the Container Walls
 
+The container is made of 3 manually placed GameObjects with BoxCollider2D components. No script is needed.
+
+### LeftWall
 1. In the Hierarchy, right-click → **Create Empty**
-2. Rename it to **Container**
-3. Set **Position** to (0, -1, 0)
-4. Click **Add Component** → search for **ContainerSetup** → add it
-5. In the ContainerSetup Inspector, verify defaults:
-   - Width: 6
-   - Height: 8
-   - Wall Thickness: 0.5
-   - Wall Color: your choice (default dark gray works)
-6. Press **Play** briefly to verify — you should see 3 walls forming a box with an open top
-7. Stop Play
+2. Rename it to **LeftWall**
+3. Set **Position** to (-3.25, 0, 0)
+4. Click **Add Component** → add **Box Collider 2D**
+   - Size: (0.5, 10)
+5. Optionally add a **Sprite Renderer** for visibility (assign a square sprite, set color to dark gray)
+
+### RightWall
+1. In the Hierarchy, right-click → **Create Empty**
+2. Rename it to **RightWall**
+3. Set **Position** to (3.25, 0, 0)
+4. Click **Add Component** → add **Box Collider 2D**
+   - Size: (0.5, 10)
+5. Optionally add a **Sprite Renderer** for visibility
+
+### BottomWall
+1. In the Hierarchy, right-click → **Create Empty**
+2. Rename it to **BottomWall**
+3. Set **Position** to (0, -5.25, 0)
+4. Click **Add Component** → add **Box Collider 2D**
+   - Size: (7, 0.5)
+5. Optionally add a **Sprite Renderer** for visibility
+
+Press **Play** briefly to verify objects do not fall through the floor, then **Stop Play**.
 
 ---
 
@@ -52,7 +68,6 @@ You have the scripts and nothing else. This guide walks you through setting up t
 3. Set **Position** to (0, 0, 0)
 4. Click **Add Component** → search for **GameManager** → add it
 5. Click **Add Component** → search for **MergeObjectFactory** → add it
-6. Click **Add Component** → search for **ScoreManager** → add it
 
 Leave the Inspector references empty for now — we'll wire them up after creating everything.
 
@@ -70,61 +85,10 @@ Leave the Inspector references empty for now — we'll wire them up after creati
    - Min X: -2.5
    - Max X: 2.5
    - Max Drop Tier: **2** (default — only TierZero/TierOne/TierTwo exist at start)
-   - Keyboard Aim Speed: 5
 
 ---
 
-## Step 6: Create the Canvas and UI
-
-1. In the Hierarchy, right-click → **UI** → **Canvas**
-2. The Canvas and EventSystem will be created automatically
-3. Select the **Canvas** and set:
-   - **Canvas Scaler** → UI Scale Mode: **Scale With Screen Size**
-   - Reference Resolution: 1920 x 1080
-
-### Score Text
-4. Right-click on **Canvas** → **UI** → **Legacy** → **Text**
-5. Rename it to **ScoreText**
-6. In the Rect Transform:
-   - Anchor: Top-Left
-   - Position: (120, -40, 0)
-   - Width: 200, Height: 50
-7. In the Text component:
-   - Text: "Score: 0"
-   - Font Size: 28
-   - Color: White
-   - Alignment: Left
-
-### Game Over Text
-8. Right-click on **Canvas** → **UI** → **Legacy** → **Text**
-9. Rename it to **GameOverText**
-10. In the Rect Transform:
-    - Anchor: Center
-    - Position: (0, 0, 0)
-    - Width: 400, Height: 200
-11. In the Text component:
-    - Text: "Game Over!"
-    - Font Size: 36
-    - Color: Red or White
-    - Alignment: Center
-12. **Uncheck the GameObject's active checkbox** (top-left of Inspector) — it starts hidden
-
-### Highest Tier Text (Optional)
-13. Right-click on **Canvas** → **UI** → **Legacy** → **Text**
-14. Rename it to **HighestTierText**
-15. In the Rect Transform:
-    - Anchor: Top-Right
-    - Position: (-120, -40, 0)
-    - Width: 200, Height: 50
-16. In the Text component:
-    - Text: "Best: --"
-    - Font Size: 24
-    - Color: White
-    - Alignment: Right
-
----
-
-## Step 7: Create the Circle Sprite
+## Step 6: Create the Circle Sprite
 
 Merge objects need a circle sprite. You can create one or use Unity's built-in:
 
@@ -142,7 +106,7 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 
 ---
 
-## Step 8: Create the TierZero Prefab
+## Step 7: Create the TierZero Prefab
 
 1. In the Hierarchy, right-click → **Create Empty**
 2. Rename it to **TierZero**
@@ -150,7 +114,7 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 
 ### Add Components:
 4. **Add Component** → **Sprite Renderer**
-   - Sprite: Assign the circle sprite from Step 7
+   - Sprite: Assign the circle sprite from Step 6
    - Color: Leave white (the script sets color at runtime)
    - Sorting Order: 0
 
@@ -176,7 +140,7 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 
 ---
 
-## Step 9: Create the TierOne Prefab
+## Step 8: Create the TierOne Prefab
 
 **Shortcut: Duplicate the TierZero prefab and modify it.**
 
@@ -192,7 +156,7 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 
 ---
 
-## Step 10: Create the TierTwo Prefab
+## Step 9: Create the TierTwo Prefab
 
 1. Duplicate the TierZero prefab again → rename to **TierTwo**
 2. Open the prefab → remove TierZero script → add **TierTwo** script
@@ -200,7 +164,7 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 
 ---
 
-## Step 11: Assign Prefabs to MergeObjectFactory
+## Step 10: Assign Prefabs to MergeObjectFactory
 
 1. Select the **Managers** GameObject in the Hierarchy
 2. Find the **Merge Object Factory** component in the Inspector
@@ -213,21 +177,15 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 
 ---
 
-## Step 12: Wire Up Inspector References
+## Step 11: Wire Up Inspector References
 
 ### On the Managers GameObject:
 
 **GameManager component:**
 - Merge Object Factory: Drag the **Managers** GameObject into this slot (it has the MergeObjectFactory component)
 - Drop Controller: Drag the **DropController** GameObject
-- Score Manager: Drag the **Managers** GameObject (it has the ScoreManager component)
 - Game Over Line Y: 4.5
 - Game Over Delay: 2
-
-**ScoreManager component:**
-- Score Text: Drag **ScoreText** from the Canvas
-- Game Over Text: Drag **GameOverText** from the Canvas
-- Highest Tier Text: Drag **HighestTierText** from the Canvas (if you created it)
 
 ### On the DropController GameObject:
 
@@ -238,32 +196,31 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 
 ---
 
-## Step 13: Test!
+## Step 12: Test!
 
 1. Press **Play**
 2. **You should see:**
    - A box container with 3 walls
    - An object floating at the top following your mouse
-   - Score text in the top-left
 
 3. **Test dropping:**
-   - Click or press Space to drop an object
-   - Move mouse or use A/D keys to aim
+   - Click to drop an object
+   - Move mouse to aim
    - Objects should fall and stack
 
 4. **Test merging:**
    - Drop two TierZero objects near each other — they should merge into a TierOne
    - Drop two TierOne objects — they should merge into a TierTwo
-   - Score should increase on each merge
+   - Score should appear in the Console (Debug.Log) on each merge
 
 5. **Test game over:**
-   - Keep dropping objects until they stack above the red line
-   - After 2 seconds, "Game Over" text should appear
+   - Keep dropping objects until they stack above the game over line
+   - After 2 seconds, game over should log to Console
    - Press R to restart
 
 ---
 
-## Step 14: Physics Tuning (Optional)
+## Step 13: Physics Tuning (Optional)
 
 If objects feel too bouncy, too heavy, or stack poorly:
 
@@ -282,7 +239,7 @@ If objects feel too bouncy, too heavy, or stack poorly:
 2. Name it **MergeObjectMaterial**
 3. Set Friction: 0.4, Bounciness: 0.1
 4. Assign it to each object prefab's CircleCollider2D → Material slot
-5. Optionally assign to ContainerSetup's Wall Material slot for wall friction too
+5. Optionally assign to the container wall BoxCollider2D Material slots for wall friction too
 
 ---
 
@@ -290,16 +247,10 @@ If objects feel too bouncy, too heavy, or stack poorly:
 
 ```
 Main Camera
-Canvas
-  ScoreText
-  GameOverText
-  HighestTierText (optional)
-  EventSystem
-Container                    [ContainerSetup]
-  LeftWall    (auto-created at runtime)
-  RightWall   (auto-created at runtime)
-  BottomWall  (auto-created at runtime)
-Managers                     [GameManager, MergeObjectFactory, ScoreManager]
+LeftWall                     [BoxCollider2D]
+RightWall                    [BoxCollider2D]
+BottomWall                   [BoxCollider2D]
+Managers                     [GameManager, MergeObjectFactory]
 DropController               [DropController]
 ```
 
@@ -325,9 +276,8 @@ Assets/
       GameScene.unity
     Scripts/
       MergeObjects/  (MergeObject.cs + derived classes)
-      Managers/      (GameManager.cs, MergeObjectFactory.cs, ScoreManager.cs)
+      Managers/      (GameManager.cs, MergeObjectFactory.cs)
       Player/        (DropController.cs)
-      Utils/         (ContainerSetup.cs)
       README.md
     Sprites/
 ```
@@ -340,7 +290,7 @@ Before distributing to students:
 
 1. **Verify Max Drop Tier** — DropController should have Max Drop Tier = 2 (only 3 starter objects)
 2. **Verify MergeObjectFactory** — Only slots 0-2 should have prefabs assigned
-3. **Verify the game plays correctly** — Drop, merge, score, game over all work
+3. **Verify the game plays correctly** — Drop, merge, score in Console, game over all work
 4. **Save the scene** (Ctrl+S)
 5. Commit to git
 

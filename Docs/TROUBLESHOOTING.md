@@ -88,13 +88,13 @@ Unity requires **both** colliding objects to have colliders, and **at least one*
 ### Symptom
 Objects drop and fall through the bottom of the container, disappearing off-screen.
 
-### Cause A: Container is missing or misconfigured
-The ContainerSetup script creates walls at runtime. If the Container GameObject is missing from the scene, or if the ContainerSetup script is not attached, no walls are created.
+### Cause A: Container walls are missing or misconfigured
+The container is made of 3 manually placed GameObjects (LeftWall, RightWall, BottomWall) each with a BoxCollider2D. If any wall is missing from the scene or has no collider, objects will fall through.
 
 ### Fix A
-1. Check the Hierarchy for a Container GameObject with the ContainerSetup script.
-2. If missing, create a new empty GameObject, name it Container, and add the ContainerSetup script.
-3. Make sure the Container is at position (0, 0, 0).
+1. Check the Hierarchy for LeftWall, RightWall, and BottomWall GameObjects.
+2. If any are missing, create a new empty GameObject, name it appropriately, and add a BoxCollider2D.
+3. Position the walls to form an open-top box (see SETUP_INSTRUCTIONS.md Step 3).
 
 ### Cause B: Object collider is set to Trigger
 If the CircleCollider2D on the object prefab has Is Trigger checked, the object will not physically interact with the walls.
@@ -209,7 +209,7 @@ The game runs but crashes or shows errors like:
    ```
 
 ### Cause A: Forgot to call base.Awake()
-The student overrode Awake() and set their field values, but forgot to call base.Awake() at the end. Without base.Awake(), the component references (rb, circleCollider, spriteRenderer) are never cached and remain null.
+The student overrode Awake() and set their field values, but forgot to call base.Awake() at the end. Without base.Awake(), the component references (rb, spriteRenderer) are never cached and remain null.
 
 ### Fix A
 Add base.Awake() as the last line inside the derived Awake() method:
@@ -293,7 +293,6 @@ The GameManager.gameOverLineY value determines the Y position of the game over d
 1. Select the GameManager GameObject in the scene.
 2. In the Inspector, find the gameOverLineY field.
 3. Set it to a value near the top of the container (default is 4.5).
-4. The red gizmo line in the Scene view shows where the game over line is -- use this to verify placement.
 
 ### Symptom B: Game over never triggers
 Objects stack far above the container and the game never ends.
