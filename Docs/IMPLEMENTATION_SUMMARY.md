@@ -24,13 +24,13 @@ Both templates follow the same pedagogical approach called **"MVP with Scaffolds
 
 ## Project Statistics
 
-- **Total C# Scripts:** 8 files (1 base class + 3 given derived + 4 system scripts)
-- **Total Lines of Code:** ~1,600 lines (including extensive teaching comments)
+- **Total C# Scripts:** 7 files (1 base class + 3 given derived + 3 system scripts)
+- **Total Lines of Code:** ~1,245 lines (including extensive teaching comments)
 - **Comment Density:** ~44% (matches SlitherTemplate)
 - **Documentation Files:** 6 markdown files (5 in Docs/ folder + 1 inside Assets/_Project/Scripts/)
 - **Unity Version:** 6000.0.63f1
 - **Render Pipeline:** Built-in 2D
-- **Packages:** Input System 1.16.0, UGUI 2.0.0 (same as SlitherTemplate)
+- **Packages:** Input System 1.16.0 (same as SlitherTemplate)
 - **Repository Location:** `C:\SCAD\Projects\MergeTemplate`
 - **Git State:** main branch. Scripts and docs committed.
 
@@ -69,8 +69,8 @@ These decisions were made through multiple rounds of Q&A before implementation:
 ### Other Decisions
 - **Theme-agnostic design** -- class names use tier-based naming (TierZero, TierOne, etc.) so students can apply any theme
 - **Properties hardcoded in each derived class** (not ScriptableObjects -- keeps focus on inheritance)
-- **Both mouse and keyboard input pre-built** (not the teaching focus, keep frictionless)
-- **Simple box container** (3 walls, open top -- not a rounded Suika-style container)
+- **Mouse-only input pre-built** (not the teaching focus, keep frictionless)
+- **Simple box container** (3 manually placed wall GameObjects with BoxCollider2D, open top -- not a rounded Suika-style container)
 - **Merge approach is up to students** -- the pre-built system destroys both and spawns new, but students can modify
 - **No next-object preview** -- instructor wants features beyond core merging to be student-driven choices
 - **Enhanced documentation** -- more docs than SlitherTemplate, plus an INHERITANCE_CONCEPTS.md
@@ -118,13 +118,10 @@ MergeTemplate/
 │       │   │   ├── TierOne.cs            Given complete -- reference #2
 │       │   │   └── TierTwo.cs            Given complete -- reference #3
 │       │   ├── Player/
-│       │   │   └── DropController.cs     Pre-built -- mouse + keyboard input
+│       │   │   └── DropController.cs     Pre-built -- mouse input
 │       │   ├── Managers/
-│       │   │   ├── GameManager.cs        Pre-built -- List<MergeObject>, merge execution
-│       │   │   ├── MergeObjectFactory.cs Pre-built -- polymorphic factory
-│       │   │   └── ScoreManager.cs       Pre-built -- UI score display
-│       │   ├── Utils/
-│       │   │   └── ContainerSetup.cs     Pre-built -- 3-wall box container
+│       │   │   ├── GameManager.cs        Pre-built -- List<MergeObject>, merge execution, inline score
+│       │   │   └── MergeObjectFactory.cs Pre-built -- polymorphic factory
 │       │   └── README.md                 Concise teaching guide inside Scripts/
 │       └── Sprites/
 ├── Docs/
@@ -162,7 +159,6 @@ protected int pointValue = 0;
 protected float objectSize = 1f;
 protected Color objectColor = Color.white;
 protected Rigidbody2D rb;
-protected CircleCollider2D circleCollider;
 protected SpriteRenderer spriteRenderer;
 private bool hasMerged = false;
 ```
@@ -227,12 +223,10 @@ Same pattern as TierZero with progressively fewer comments (by the third example
 ### DropController.cs -- Pre-Built
 
 - `private MergeObject currentObject` -- **polymorphic variable** typed as base class
-- Both mouse (cursor position) and keyboard (A/D, arrow keys) input
-- Space bar or mouse click to drop
+- Mouse input: cursor position to aim, click to drop
 - `SpawnNextObject()` calls `mergeObjectFactory.CreateObject(Random.Range(0, maxDropTier + 1))`
 - Object starts kinematic (no gravity while aiming), switches to dynamic on drop
 - `maxDropTier` Inspector field controls which tiers can spawn (start at 2 for 3-tier game)
-- OnDrawGizmos draws drop line and aim boundaries
 
 ### MergeObjectFactory.cs -- Pre-Built
 
@@ -246,6 +240,7 @@ Same pattern as TierZero with progressively fewer comments (by the third example
 ### GameManager.cs -- Pre-Built
 
 - `private List<MergeObject> activeObjects` -- **polymorphic collection**
+- `private int score` -- inline score tracking, logged via Debug.Log on merge
 - `public void MergeObjects(MergeObject objA, MergeObject objB)` -- **polymorphic parameters**: gets next tier via `objA.GetMergeResultTier()`, calculates midpoint, awards points via `GetPointValue()`, destroys both, spawns next tier via factory, registers new object
 - `RegisterObject(MergeObject)` / `UnregisterObject(MergeObject)` -- list management
 - Game over detection: foreach over activeObjects, checks Y position against `gameOverLineY`, accumulates timer, triggers after `gameOverDelay` seconds
@@ -256,23 +251,6 @@ Same pattern as TierZero with progressively fewer comments (by the third example
   - `GetHighestTier()`
   - `GetHighestObjectName()`
   - `GetActiveObjectCount()`
-- OnDrawGizmos draws game over line
-
-### ScoreManager.cs -- Pre-Built
-
-Same pattern as SlitherTemplate's ScoreManager. Uses `UnityEngine.UI.Text` (Legacy UI).
-- `AddScore(int points)` / `GetCurrentScore()` / `ResetScore()`
-- `UpdateHighestObject(string objectName)`
-- `ShowGameOver()`
-
-### ContainerSetup.cs -- Pre-Built, in Utils/ folder
-
-- Creates 3 child GameObjects at runtime: LeftWall, RightWall, BottomWall
-- Each wall gets BoxCollider2D + SpriteRenderer
-- `CreateSquareSprite()` generates a 4x4 white pixel texture for wall rendering
-- Inspector-tunable: width, height, wallThickness, wallColor
-- Optional PhysicsMaterial2D slot for wall friction/bounce
-- OnDrawGizmos draws container outline
 
 ---
 
@@ -293,7 +271,7 @@ Same pattern as SlitherTemplate's ScoreManager. Uses `UnityEngine.UI.Text` (Lega
 
 ### Session 1: Explore + Understand Base Class
 - **Student code work:** None -- read, play, annotate
-- **What works out of the box:** 3 tier types drop, merge, score, game over
+- **What works out of the box:** 3 tier types drop, merge (score logged to Console), game over
 - **Teaching focus:** Read MergeObject.cs and TierZero.cs, identify the pattern
 - **Key questions:** What does `: MergeObject` mean? What is `protected`? What does `virtual` do? What does `base.Awake()` do?
 - **Students choose** which personal features to add going forward
@@ -340,14 +318,13 @@ Matches SlitherTemplate exactly:
 5. **[POLY] markers:** Used in `OnCollisionEnter2D` to mark every line where polymorphism is in action
 6. **`[Header()]` attributes:** On all Inspector-exposed field groups
 7. **XML doc comments:** `/// <summary>` on all public methods
-8. **OnDrawGizmos:** On every script with spatial data (Container, DropController, GameManager)
 
 ---
 
 ## What's Done vs What's Still Needed
 
 ### DONE:
-- All 8 C# scripts written and in place
+- All 7 C# scripts written and in place
 - All 6 documentation files written
 - Professional directory structure with standard Unity folders
 - All files committed to git
@@ -355,10 +332,9 @@ Matches SlitherTemplate exactly:
 - Documentation consolidated in Docs/ folder
 
 ### NOT YET DONE (requires Unity Editor):
-- Scene setup (camera, GameObjects, component assignment, Inspector references)
+- Scene setup (camera, wall GameObjects with BoxCollider2D, component assignment, Inspector references)
 - Prefab creation (TierZero, TierOne, TierTwo with SpriteRenderer + Rigidbody2D + CircleCollider2D + derived script)
 - MergeObjectFactory prefab slot assignment (slots 0-2)
-- Canvas/UI creation (ScoreText, GameOverText, HighestTierText)
 - Physics tuning (gravity, iterations, drag, optional PhysicsMaterial2D)
 
 See `Docs/SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide.
@@ -371,15 +347,13 @@ See `Docs/SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide
 
 | Script | Lines | Purpose | Status |
 |--------|-------|---------|--------|
-| MergeObject.cs | ~388 | Base class | Pre-built |
+| MergeObject.cs | ~366 | Base class | Pre-built |
 | TierZero.cs | ~122 | Reference derived #1 | Given |
 | TierOne.cs | ~45 | Reference derived #2 | Given |
 | TierTwo.cs | ~30 | Reference derived #3 | Given |
-| DropController.cs | ~294 | Input/drop mechanic | Pre-built |
-| GameManager.cs | ~402 | Game state/merge | Pre-built |
-| MergeObjectFactory.cs | ~173 | Prefab factory | Pre-built |
-| ScoreManager.cs | ~138 | UI scoring | Pre-built |
-| ContainerSetup.cs | ~173 | Wall container | Pre-built |
+| DropController.cs | ~222 | Input/drop mechanic | Pre-built |
+| GameManager.cs | ~318 | Game state/merge/score | Pre-built |
+| MergeObjectFactory.cs | ~142 | Prefab factory | Pre-built |
 
 ### Lines by Documentation:
 
@@ -400,14 +374,14 @@ See `Docs/SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide
 | Aspect | SlitherTemplate | MergeTemplate |
 |--------|----------------|---------------|
 | Teaching concept | Arrays and Loops | Inheritance and Polymorphism |
-| Total scripts | 8 | 8 (base + 3 derived + 4 system) |
-| Total code lines | 1,375 | ~1,600 |
+| Total scripts | 8 | 7 (base + 3 derived + 3 system) |
+| Total code lines | 1,375 | ~1,245 |
 | Comment density | ~44% | ~44% |
 | Doc files | 4 | 6 |
 | Given examples | N/A (TODOs are in system scripts) | 3 derived classes (TierZero, TierOne, TierTwo) |
 | Student work | 6 for-loop blocks across 3 files | Create derived classes from scratch |
 | Sessions | 6 instructional | 5-6 instructional (+ abstract stretch) |
-| Folder convention | `AI/`, `Food/`, `Player/`, `Managers/`, `Utils/` | `MergeObjects/`, `Player/`, `Managers/`, `Utils/` |
+| Folder convention | `AI/`, `Food/`, `Player/`, `Managers/`, `Utils/` | `MergeObjects/`, `Managers/`, `Player/` |
 | Root docs | `README.md`, `SETUP_INSTRUCTIONS.md`, `IMPLEMENTATION_SUMMARY.md`, `QUICKSTART_CHECKLIST.md` | `README.md` at root + 5 docs in `Docs/` folder |
 | Scripts README | Yes (`Assets/_Project/Scripts/README.md`) | Yes (`Assets/_Project/Scripts/README.md`) |
 | Unity version | 6000.0.63f1 | 6000.0.63f1 |
@@ -451,7 +425,7 @@ After completing Unity setup (per Docs/SETUP_INSTRUCTIONS.md), verify:
 - [ ] Objects fall with gravity and stack in container
 - [ ] Two TierZero objects merge into TierOne
 - [ ] Two TierOne objects merge into TierTwo
-- [ ] Score increases on merge
+- [ ] Score logged to Console on merge (Debug.Log)
 - [ ] Game over triggers when objects stack above the line
 - [ ] Press R restarts the game
 - [ ] Creating a new derived class -> creating prefab -> assigning slot works

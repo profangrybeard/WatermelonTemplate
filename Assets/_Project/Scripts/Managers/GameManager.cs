@@ -3,20 +3,14 @@
  * Sessions 1-5: Game Manager
  *
  * TEACHING FOCUS:
- * - POLYMORPHIC COLLECTION: List<MergeObject> holds TierZero, TierOne, TierTwo -- ANY derived type
- * - POLYMORPHIC PARAMETERS: MergeObjects(MergeObject a, MergeObject b) accepts any two derived types
- * - VIRTUAL METHOD DISPATCH: Calling methods on MergeObject references runs the derived version
+ * - POLYMORPHIC COLLECTION: List<MergeObject> holds ANY derived type
+ * - POLYMORPHIC PARAMETERS: MergeObjects() accepts any two MergeObject types
+ * - VIRTUAL METHOD DISPATCH: Calling methods on base references runs the derived version
  * - foreach LOOPS over polymorphic collections
- *
- * This script manages the overall game state:
- * - Tracks all active objects in a List<MergeObject> (polymorphic collection)
- * - Executes merges (destroy two objects, spawn the next tier)
- * - Detects game over condition
- * - Provides polymorphic query methods for inspecting active objects
  *
  * STUDENT TASKS:
  * - Session 1: Read and understand how List<MergeObject> works with different derived types
- * - Session 3: Examine the polymorphic query methods during the polymorphism deep dive
+ * - Session 3: Complete the TODO query methods, examine polymorphism in foreach loops
  */
 
 using System.Collections.Generic;
@@ -36,9 +30,6 @@ public class GameManager : MonoBehaviour
     [Tooltip("Drag the DropController component from the scene")]
     public DropController dropController;
 
-    [Tooltip("Drag the ScoreManager component from the scene")]
-    public ScoreManager scoreManager;
-
     [Header("Game Over Settings")]
     [Tooltip("Y position above which objects trigger game over")]
     public float gameOverLineY = 4.5f;
@@ -51,24 +42,15 @@ public class GameManager : MonoBehaviour
     // POLYMORPHIC COLLECTION
     // ============================================
 
-    // =====================================================================
-    // TEACHING: POLYMORPHIC COLLECTION (List<MergeObject>)
-    //
-    // List<MergeObject> can hold TierZero, TierOne, TierTwo --
+    // TEACHING: List<MergeObject> can hold TierZero, TierOne, TierTwo --
     // ANY class that inherits from MergeObject.
     //
-    // When we loop through this list and call methods like GetTier(),
-    // GetPointValue(), or GetObjectName(), the CORRECT DERIVED VERSION
-    // runs for each object. A TierZero returns tier 0, a TierTwo returns tier 2,
-    // a TierThree returns tier 3, etc.
+    // When we loop through this list and call methods like GetTier() or
+    // GetPointValue(), the CORRECT DERIVED VERSION runs for each object.
+    // We never check "is this a TierZero?" -- polymorphism handles it.
     //
-    // We never need to check "is this a TierZero? is this a TierTwo?"
-    // We just call the method, and polymorphism handles the rest.
-    //
-    // This is one of the most powerful concepts in object-oriented programming:
-    // write code that works with the BASE type, and it automatically works
-    // with ALL derived types -- even ones that don't exist yet!
-    // =====================================================================
+    // Write code for the BASE type, and it works with ALL derived types --
+    // even ones that don't exist yet!
     private List<MergeObject> activeObjects = new List<MergeObject>();
 
 
@@ -78,6 +60,7 @@ public class GameManager : MonoBehaviour
 
     private bool isGameOver = false;
     private float gameOverTimer = 0f;
+    private int score = 0;
 
 
     // ============================================
@@ -133,21 +116,11 @@ public class GameManager : MonoBehaviour
     // MERGE EXECUTION
     // ============================================
 
-    // =====================================================================
     // TEACHING: POLYMORPHIC PARAMETERS
-    //
     // MergeObjects takes two MergeObject parameters. The actual objects could be
-    // any combination: two TierZero, two TierTwo, two TierThree, etc.
-    //
-    // Every method call on objA and objB uses polymorphism:
-    //   objA.GetMergeResultTier()  -- calls the DERIVED version
-    //   objA.GetPointValue()       -- calls the DERIVED version
-    //   objB.GetPointValue()       -- calls the DERIVED version
-    //
-    // This ONE method handles ALL possible merge combinations.
-    // We never write "if objA is TierZero" or "if objB is TierTwo".
-    // Polymorphism makes that unnecessary.
-    // =====================================================================
+    // any combination: two TierZero, two TierTwo, two of your custom class, etc.
+    // Every method call uses virtual dispatch to run the derived version.
+    // This ONE method handles ALL merge combinations -- no type-checking needed.
 
     /// <summary>
     /// Executes a merge between two objects: destroys both and spawns the next tier.
@@ -170,12 +143,9 @@ public class GameManager : MonoBehaviour
         Vector3 mergePosition = (objA.transform.position + objB.transform.position) / 2f;
 
         // [POLY] GetPointValue() calls the derived version for each object.
-        // TierZero returns 1, TierTwo returns 6, TierThree returns 10, etc.
-        if (scoreManager != null)
-        {
-            int points = objA.GetPointValue() + objB.GetPointValue();
-            scoreManager.AddScore(points);
-        }
+        int points = objA.GetPointValue() + objB.GetPointValue();
+        score += points;
+        Debug.Log($"Merge! +{points} points (Total: {score})");
 
         // Remove both objects from tracking and destroy them
         UnregisterMergeObject(objA);
@@ -193,12 +163,6 @@ public class GameManager : MonoBehaviour
                 newObj.SetKinematic(false);
                 newObj.SetPhysicsEnabled(true);
                 RegisterMergeObject(newObj);
-
-                // Update highest object display only if this is a new best
-                if (scoreManager != null && newObj.GetTier() >= GetHighestTier())
-                {
-                    scoreManager.UpdateHighestObject(newObj.GetObjectName());
-                }
             }
         }
         else
@@ -264,12 +228,7 @@ public class GameManager : MonoBehaviour
             dropController.OnGameOver();
         }
 
-        if (scoreManager != null)
-        {
-            scoreManager.ShowGameOver();
-        }
-
-        Debug.Log("Game Over! Press R to restart.");
+        Debug.Log($"Game Over! Score: {score}. Press R to restart.");
     }
 
     /// <summary>
@@ -285,21 +244,12 @@ public class GameManager : MonoBehaviour
     // POLYMORPHIC QUERY METHODS
     // ============================================
 
-    // =====================================================================
     // TEACHING: POLYMORPHISM IN FOREACH LOOPS
+    // Each 'obj' in the loop is typed as MergeObject, but the actual objects
+    // are TierZero, TierOne, TierTwo, your custom classes, etc. When we call
+    // obj.GetTier() or obj.GetPointValue(), the DERIVED version runs automatically.
     //
-    // These methods demonstrate polymorphism in its most common form:
-    // iterating a collection of base-class references and calling virtual
-    // methods that dispatch to the correct derived version.
-    //
-    // In each loop, 'obj' is typed as MergeObject, but the actual objects
-    // are your classes (TierZero, TierOne, TierTwo, etc.). When we call
-    // obj.GetTier() or obj.GetPointValue(), the DERIVED version runs
-    // automatically.
-    //
-    // Session 3: Walk through these methods with the instructor to see
-    // polymorphism in action with a running game.
-    // =====================================================================
+    // Session 3: Walk through these methods with the instructor.
 
     /// <summary>
     /// Counts how many active objects have the specified tier.
@@ -364,20 +314,5 @@ public class GameManager : MonoBehaviour
     public int GetActiveObjectCount()
     {
         return activeObjects.Count;
-    }
-
-
-    // ============================================
-    // EDITOR VISUALIZATION
-    // ============================================
-
-    void OnDrawGizmos()
-    {
-        // Draw the game over line in the editor
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(
-            new Vector3(-5f, gameOverLineY, 0f),
-            new Vector3(5f, gameOverLineY, 0f)
-        );
     }
 }

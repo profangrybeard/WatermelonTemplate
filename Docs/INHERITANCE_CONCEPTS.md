@@ -53,7 +53,7 @@ inherits from `MergeObject`.
 | Category               | What MergeObject.cs Declares                                      |
 |------------------------|-------------------------------------------------------------------|
 | Protected fields       | `tier`, `objectName`, `pointValue`, `objectSize`, `objectColor`   |
-| Component references   | `rb`, `circleCollider`, `spriteRenderer`                          |
+| Component references   | `rb`, `spriteRenderer`                                            |
 | Virtual methods        | `Awake()`, `Start()`, `GetTier()`, `GetPointValue()`, etc.        |
 | Merge detection        | `OnCollisionEnter2D()` -- works for ALL object types              |
 | Physics helpers        | `SetPhysicsEnabled()`, `SetKinematic()`                           |
@@ -72,14 +72,12 @@ public class MergeObject : MonoBehaviour
 
     // Cached component references
     protected Rigidbody2D rb;
-    protected CircleCollider2D circleCollider;
     protected SpriteRenderer spriteRenderer;
 
     // Virtual method -- derived classes CAN override this
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        circleCollider = GetComponent<CircleCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 }
@@ -130,7 +128,7 @@ public class TierZero : MergeObject    // <-- the colon means "inherits from"
 - `SetPhysicsEnabled()` and `SetKinematic()` physics helpers
 - `GetTier()`, `GetPointValue()`, `GetObjectName()` getter methods
 - `ApplyObjectProperties()` visual setup
-- All component references (`rb`, `circleCollider`, `spriteRenderer`)
+- All component references (`rb`, `spriteRenderer`)
 
 **Plain English:** TierZero says "I am a MergeObject, but specifically I am tier 0, I am called
 TierZero, I am worth 1 point, I am small, and I am red." Everything else -- how to merge, how
@@ -195,7 +193,6 @@ are not required to.
 protected virtual void Awake()
 {
     rb = GetComponent<Rigidbody2D>();
-    circleCollider = GetComponent<CircleCollider2D>();
     spriteRenderer = GetComponent<SpriteRenderer>();
 }
 
@@ -294,18 +291,16 @@ protected override void Awake()
     // 2. Then, call the parent Awake() to cache component references
     base.Awake();    // <-- runs MergeObject.Awake(), which does:
                      //     rb = GetComponent<Rigidbody2D>();
-                     //     circleCollider = GetComponent<CircleCollider2D>();
                      //     spriteRenderer = GetComponent<SpriteRenderer>();
 }
 ```
 
 **What happens if you forget `base.Awake()`?**
 
-If you omit `base.Awake()`, the parent version never runs. That means `rb`,
-`circleCollider`, and `spriteRenderer` will all be **null**. The object will:
+If you omit `base.Awake()`, the parent version never runs. That means `rb`
+and `spriteRenderer` will both be **null**. The object will:
 
 - Not respond to physics (no Rigidbody2D reference)
-- Not detect collisions for merging (no collider reference)
 - Not display its color (no SpriteRenderer reference)
 - Throw `NullReferenceException` errors at runtime
 
@@ -439,7 +434,6 @@ public abstract class MergeObject : MonoBehaviour
     {
         InitializeMergeObjectProperties();  // Calls the derived version (guaranteed to exist)
         rb = GetComponent<Rigidbody2D>();
-        circleCollider = GetComponent<CircleCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 }
@@ -500,9 +494,9 @@ with annotations showing how they connect.
   protected virtual void Awake()       <---->   protected override void Awake()
   {                                             {
       rb = GetComponent<...>();                     tier = 0;
-      circleCollider = GetComponent<>();            objectName = "TierZero";
-      spriteRenderer = GetComponent<>();            pointValue = 1;
-  }                                                 objectSize = 0.5f;
+      spriteRenderer = GetComponent<>();            objectName = "TierZero";
+  }                                                 pointValue = 1;
+                                                    objectSize = 0.5f;
        ^                                            objectColor = new Color(...);
        |
        +-------------------------------------       base.Awake();  // calls the base ^
@@ -548,7 +542,7 @@ with annotations showing how they connect.
 
 | # | Mistake | Symptom | Fix |
 |---|---------|---------|-----|
-| 1 | **Forgetting `base.Awake()`** in your derived class | `NullReferenceException` at runtime. The object appears in the scene but has no physics, no collision detection, and no color. The console shows errors about null `Rigidbody2D` or `SpriteRenderer`. | Add `base.Awake();` as the **last line** of your derived `Awake()` method. This runs the parent code that caches `rb`, `circleCollider`, and `spriteRenderer`. |
+| 1 | **Forgetting `base.Awake()`** in your derived class | `NullReferenceException` at runtime. The object appears in the scene but has no physics and no color. The console shows errors about null `Rigidbody2D` or `SpriteRenderer`. | Add `base.Awake();` as the **last line** of your derived `Awake()` method. This runs the parent code that caches `rb` and `spriteRenderer`. |
 | 2 | **Using `private` instead of `protected`** on fields in the base class | Compiler error in derived classes: `MergeObject.tier is inaccessible due to its protection level`. Your derived class cannot set `tier`, `objectName`, or other fields. | Change the field declaration in `MergeObject.cs` from `private` to `protected`. Remember: `protected` = this class + children. |
 | 3 | **Missing the `override` keyword** on `Awake()` in a derived class | The derived `Awake()` hides the base version instead of overriding it. You get the compiler warning: `TierZero.Awake() hides inherited member MergeObject.Awake()`. The base `Awake()` may run instead of (or in addition to) your version, leading to unpredictable behavior. | Change `protected void Awake()` to `protected override void Awake()`. The `override` keyword is required to properly replace a `virtual` method. |
 | 4 | **Forgetting to set all five fields** in the derived `Awake()` | The object uses the default values from `MergeObject.cs` for any field you forgot. For example, if you forget `objectSize`, the object uses `1f` instead of your intended size. If you forget `objectName`, the UI shows "MergeObject" instead of the actual name. | Set all five fields in every derived class: `tier`, `objectName`, `pointValue`, `objectSize`, `objectColor`. Copy the pattern from `TierZero.cs` and change only the values. |

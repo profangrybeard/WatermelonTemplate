@@ -28,8 +28,6 @@ This template is designed as an **MVP with examples** — students study 3 worki
 | Drop controller | `DropController.cs` | — |
 | Game manager | `GameManager.cs` with `List<MergeObject>` | — |
 | Factory | `MergeObjectFactory.cs` with `CreateObject()` | — |
-| Scoring | `ScoreManager.cs` | — |
-| Container | `ContainerSetup.cs` | — |
 
 ---
 
@@ -41,7 +39,7 @@ This template is designed as an **MVP with examples** — students study 3 worki
 **What Works:**
 - 3 object types drop, fall with gravity, stack in container
 - Two TierZeros merge into TierOne, two TierOnes merge into TierTwo
-- Score increases on merge
+- Score logged to Console on merge (Debug.Log)
 - Game over triggers when objects stack too high
 
 **Teaching Points:**
@@ -151,7 +149,6 @@ protected virtual void Awake()
 {
     InitializeMergeObjectProperties();  // Derived classes MUST implement this
     rb = GetComponent<Rigidbody2D>();
-    circleCollider = GetComponent<CircleCollider2D>();
     spriteRenderer = GetComponent<SpriteRenderer>();
 }
 ```

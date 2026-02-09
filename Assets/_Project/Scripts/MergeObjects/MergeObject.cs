@@ -80,7 +80,6 @@ public class MergeObject : MonoBehaviour
     // call GetComponent<T>() every frame. This is a standard Unity optimization.
     // These are 'protected' so derived classes can access them if needed.
     protected Rigidbody2D rb;
-    protected CircleCollider2D circleCollider;
     protected SpriteRenderer spriteRenderer;
 
     // ============================================
@@ -123,7 +122,6 @@ public class MergeObject : MonoBehaviour
     {
         // Cache component references so we don't call GetComponent every frame
         rb = GetComponent<Rigidbody2D>();
-        circleCollider = GetComponent<CircleCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -164,24 +162,13 @@ public class MergeObject : MonoBehaviour
     // VIRTUAL METHODS (Override in Derived Classes)
     // ============================================
 
-    // =====================================================================
-    // TEACHING: VIRTUAL GETTERS
-    //
-    // These methods are marked 'virtual' so derived classes CAN override them.
-    // By default, they return the protected field values set in Awake().
-    //
-    // POLYMORPHISM IN ACTION:
+    // TEACHING: VIRTUAL GETTERS -- POLYMORPHISM IN ACTION
     // When code calls obj.GetTier() on a MergeObject reference, the DERIVED
     // version runs if the actual object is TierZero, TierOne, etc.
-    // This is called "virtual method dispatch" or "dynamic dispatch."
-    //
-    // Example:
-    //   MergeObject obj = someTierZero;  // Typed as MergeObject, actual object is TierZero
-    //   obj.GetTier();                   // Calls TierZero's version -> returns 0
-    //
-    //   MergeObject obj = someTierTwo;   // Typed as MergeObject, actual object is TierTwo
-    //   obj.GetTier();                   // Calls TierTwo's version -> returns 2
-    // =====================================================================
+    //   MergeObject obj = someTierZero;
+    //   obj.GetTier();  // Calls TierZero's version -> returns 0
+    //   MergeObject obj = someTierTwo;
+    //   obj.GetTier();  // Calls TierTwo's version -> returns 2
 
     /// <summary>
     /// Returns this object's tier (position in the merge chain).

@@ -4,7 +4,7 @@
 
 This template teaches **inheritance** and **polymorphism** through a merge game (inspired by Suika Game). Students start with a fully playable 3-tier game and progressively build out their own merge object classes, learning OOP concepts hands-on as each class extends the `MergeObject` base class.
 
-The merge system, physics, UI, and game loop are **pre-built**. Students focus exclusively on creating derived classes, overriding virtual methods, and adding custom behavior -- the core skills of object-oriented programming.
+The merge system, physics, and game loop are **pre-built**. Students focus exclusively on creating derived classes, overriding virtual methods, and adding custom behavior -- the core skills of object-oriented programming.
 
 ---
 
@@ -27,9 +27,7 @@ This follows the same philosophy as the SlitherTemplate: **give students a worki
 | Student classes | **Student-Created** | Sessions 2-3 -- students create their own derived classes from scratch |
 | `GameManager.cs` | **Provided** | Merge execution, object tracking, game over detection |
 | `MergeObjectFactory.cs` | **Provided** | Prefab array, polymorphic `CreateObject()` method |
-| `DropController.cs` | **Provided** | Input handling, aiming, dropping with cooldown |
-| `ScoreManager.cs` | **Provided** | Score display, game over UI |
-| `ContainerSetup.cs` | **Provided** | Procedural wall generation |
+| `DropController.cs` | **Provided** | Mouse input, aiming, dropping with cooldown |
 
 ---
 
@@ -39,10 +37,10 @@ This follows the same philosophy as the SlitherTemplate: **give students a worki
 **Status:** Game runs with TierZero, TierOne, and TierTwo already working.
 
 **What Works:**
-- Drop objects with mouse click or spacebar
-- Aim with mouse movement or A/D keys
+- Drop objects with mouse click
+- Aim with mouse movement
 - Two same-tier objects merge into the next tier (TierZero + TierZero = TierOne)
-- Score increases on each merge
+- Score logged to Console on each merge (Debug.Log)
 - Game over triggers when objects stack above the line
 
 **Teaching Points:**
@@ -241,9 +239,9 @@ Students choose from this menu based on interest and skill level. These are sugg
 
 ### Beginner Features
 - **Custom object colors** -- Change the RGBA values in your classes to your own palette
-- **Score display improvements** -- Add "Highest Tier" text, change font size, reposition UI
+- **Score UI** -- Add a Canvas with Text to display the score on screen instead of just the Console
 - **Adjusted drop speed** -- Modify `dropCooldown` in the DropController Inspector
-- **Container size tweaks** -- Change container `width` and `height` in the Inspector
+- **Container size tweaks** -- Adjust wall positions and collider sizes in the scene
 - **Custom debug messages** -- Add personality to each object's `OnMerge()` log messages
 
 ### Intermediate Features
