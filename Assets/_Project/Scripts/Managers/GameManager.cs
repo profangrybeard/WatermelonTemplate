@@ -67,6 +67,11 @@ public class GameManager : MonoBehaviour
     // UNITY LIFECYCLE
     // ============================================
 
+    void Start()
+    {
+        Debug.Log($"Merge Template {BuildInfo.Version}");
+    }
+
     void Update()
     {
         if (isGameOver)
