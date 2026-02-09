@@ -1,21 +1,21 @@
 /*
- * GAME 220: Watermelon Merge Template
+ * GAME 220: Merge Template
  * Sessions 1-5: Game Manager
  *
  * TEACHING FOCUS:
- * - POLYMORPHIC COLLECTION: List<Fruit> holds Cherry, Grape, Orange -- ANY derived type
- * - POLYMORPHIC PARAMETERS: MergeFruits(Fruit a, Fruit b) accepts any two fruit types
- * - VIRTUAL METHOD DISPATCH: Calling methods on Fruit references runs the derived version
+ * - POLYMORPHIC COLLECTION: List<MergeObject> holds TierZero, TierOne, TierTwo -- ANY derived type
+ * - POLYMORPHIC PARAMETERS: MergeObjects(MergeObject a, MergeObject b) accepts any two derived types
+ * - VIRTUAL METHOD DISPATCH: Calling methods on MergeObject references runs the derived version
  * - foreach LOOPS over polymorphic collections
  *
  * This script manages the overall game state:
- * - Tracks all active fruits in a List<Fruit> (polymorphic collection)
- * - Executes merges (destroy two fruits, spawn the next tier)
+ * - Tracks all active objects in a List<MergeObject> (polymorphic collection)
+ * - Executes merges (destroy two objects, spawn the next tier)
  * - Detects game over condition
- * - Provides polymorphic query methods for inspecting active fruits
+ * - Provides polymorphic query methods for inspecting active objects
  *
  * STUDENT TASKS:
- * - Session 1: Read and understand how List<Fruit> works with different fruit types
+ * - Session 1: Read and understand how List<MergeObject> works with different derived types
  * - Session 3: Examine the polymorphic query methods during the polymorphism deep dive
  */
 
@@ -30,8 +30,8 @@ public class GameManager : MonoBehaviour
     // ============================================
 
     [Header("References")]
-    [Tooltip("Drag the FruitFactory component from the scene")]
-    public FruitFactory fruitFactory;
+    [Tooltip("Drag the MergeObjectFactory component from the scene")]
+    public MergeObjectFactory objectFactory;
 
     [Tooltip("Drag the DropController component from the scene")]
     public DropController dropController;
@@ -40,10 +40,10 @@ public class GameManager : MonoBehaviour
     public ScoreManager scoreManager;
 
     [Header("Game Over Settings")]
-    [Tooltip("Y position above which fruits trigger game over")]
+    [Tooltip("Y position above which objects trigger game over")]
     public float gameOverLineY = 4.5f;
 
-    [Tooltip("Seconds a fruit must be above the line before game over triggers")]
+    [Tooltip("Seconds an object must be above the line before game over triggers")]
     public float gameOverDelay = 2f;
 
 
@@ -52,24 +52,24 @@ public class GameManager : MonoBehaviour
     // ============================================
 
     // =====================================================================
-    // TEACHING: POLYMORPHIC COLLECTION (List<Fruit>)
+    // TEACHING: POLYMORPHIC COLLECTION (List<MergeObject>)
     //
-    // List<Fruit> can hold Cherry, Strawberry, Grape, Orange, Watermelon --
-    // ANY class that inherits from Fruit.
+    // List<MergeObject> can hold TierZero, TierOne, TierTwo --
+    // ANY class that inherits from MergeObject.
     //
     // When we loop through this list and call methods like GetTier(),
-    // GetPointValue(), or GetFruitName(), the CORRECT DERIVED VERSION
-    // runs for each fruit. A Cherry returns tier 0, a Grape returns tier 2,
-    // an Orange returns tier 3, etc.
+    // GetPointValue(), or GetObjectName(), the CORRECT DERIVED VERSION
+    // runs for each object. A TierZero returns tier 0, a TierTwo returns tier 2,
+    // a TierThree returns tier 3, etc.
     //
-    // We never need to check "is this a Cherry? is this a Grape?"
+    // We never need to check "is this a TierZero? is this a TierTwo?"
     // We just call the method, and polymorphism handles the rest.
     //
     // This is one of the most powerful concepts in object-oriented programming:
     // write code that works with the BASE type, and it automatically works
     // with ALL derived types -- even ones that don't exist yet!
     // =====================================================================
-    private List<Fruit> activeFruits = new List<Fruit>();
+    private List<MergeObject> activeObjects = new List<MergeObject>();
 
 
     // ============================================
@@ -101,30 +101,30 @@ public class GameManager : MonoBehaviour
 
 
     // ============================================
-    // FRUIT TRACKING (Polymorphic Collection Management)
+    // OBJECT TRACKING (Polymorphic Collection Management)
     // ============================================
 
     /// <summary>
-    /// Adds a fruit to the active fruits list.
-    /// The parameter is typed as Fruit (base class), so this method
-    /// accepts Cherry, Grape, Orange -- ANY derived type.
+    /// Adds an object to the active objects list.
+    /// The parameter is typed as MergeObject (base class), so this method
+    /// accepts any derived type.
     /// </summary>
-    public void RegisterFruit(Fruit fruit)
+    public void RegisterMergeObject(MergeObject obj)
     {
-        if (fruit != null && !activeFruits.Contains(fruit))
+        if (obj != null && !activeObjects.Contains(obj))
         {
-            activeFruits.Add(fruit);
+            activeObjects.Add(obj);
         }
     }
 
     /// <summary>
-    /// Removes a fruit from the active fruits list.
+    /// Removes an object from the active objects list.
     /// </summary>
-    public void UnregisterFruit(Fruit fruit)
+    public void UnregisterMergeObject(MergeObject obj)
     {
-        if (fruit != null)
+        if (obj != null)
         {
-            activeFruits.Remove(fruit);
+            activeObjects.Remove(obj);
         }
     }
 
@@ -136,74 +136,74 @@ public class GameManager : MonoBehaviour
     // =====================================================================
     // TEACHING: POLYMORPHIC PARAMETERS
     //
-    // MergeFruits takes two Fruit parameters. The actual objects could be
-    // any combination: two Cherries, two Grapes, two Oranges, etc.
+    // MergeObjects takes two MergeObject parameters. The actual objects could be
+    // any combination: two TierZero, two TierTwo, two TierThree, etc.
     //
-    // Every method call on fruitA and fruitB uses polymorphism:
-    //   fruitA.GetMergeResultTier()  -- calls the DERIVED version
-    //   fruitA.GetPointValue()       -- calls the DERIVED version
-    //   fruitB.GetPointValue()       -- calls the DERIVED version
+    // Every method call on objA and objB uses polymorphism:
+    //   objA.GetMergeResultTier()  -- calls the DERIVED version
+    //   objA.GetPointValue()       -- calls the DERIVED version
+    //   objB.GetPointValue()       -- calls the DERIVED version
     //
     // This ONE method handles ALL possible merge combinations.
-    // We never write "if fruitA is Cherry" or "if fruitB is Grape".
+    // We never write "if objA is TierZero" or "if objB is TierTwo".
     // Polymorphism makes that unnecessary.
     // =====================================================================
 
     /// <summary>
-    /// Executes a merge between two fruits: destroys both and spawns the next tier.
-    /// Called by Fruit.OnCollisionEnter2D() when two same-tier fruits collide.
+    /// Executes a merge between two objects: destroys both and spawns the next tier.
+    /// Called by MergeObject.OnCollisionEnter2D() when two same-tier objects collide.
     /// </summary>
-    public void MergeFruits(Fruit fruitA, Fruit fruitB)
+    public void MergeObjects(MergeObject objA, MergeObject objB)
     {
-        if (fruitA == null || fruitB == null) return;
+        if (objA == null || objB == null) return;
 
         // [POLY] GetMergeResultTier() calls the derived version.
-        // Most fruits return tier + 1. Watermelon returns -1.
-        int nextTier = fruitA.GetMergeResultTier();
+        // Most objects return tier + 1. The highest tier returns -1.
+        int nextTier = objA.GetMergeResultTier();
         if (nextTier == -1)
         {
-            Debug.Log("Maximum tier reached! Two Watermelons cannot merge.");
+            Debug.Log("Maximum tier reached! Two max-tier objects cannot merge.");
             return;
         }
 
-        // Calculate the spawn position (midpoint between the two fruits)
-        Vector3 mergePosition = (fruitA.transform.position + fruitB.transform.position) / 2f;
+        // Calculate the spawn position (midpoint between the two objects)
+        Vector3 mergePosition = (objA.transform.position + objB.transform.position) / 2f;
 
-        // [POLY] GetPointValue() calls the derived version for each fruit.
-        // Cherry returns 1, Grape returns 6, Orange returns 10, etc.
+        // [POLY] GetPointValue() calls the derived version for each object.
+        // TierZero returns 1, TierTwo returns 6, TierThree returns 10, etc.
         if (scoreManager != null)
         {
-            int points = fruitA.GetPointValue() + fruitB.GetPointValue();
+            int points = objA.GetPointValue() + objB.GetPointValue();
             scoreManager.AddScore(points);
         }
 
-        // Remove both fruits from tracking and destroy them
-        UnregisterFruit(fruitA);
-        UnregisterFruit(fruitB);
-        Destroy(fruitA.gameObject);
-        Destroy(fruitB.gameObject);
+        // Remove both objects from tracking and destroy them
+        UnregisterMergeObject(objA);
+        UnregisterMergeObject(objB);
+        Destroy(objA.gameObject);
+        Destroy(objB.gameObject);
 
-        // Create the merged fruit (next tier) at the midpoint
-        if (fruitFactory != null && fruitFactory.HasPrefabForTier(nextTier))
+        // Create the merged object (next tier) at the midpoint
+        if (objectFactory != null && objectFactory.HasPrefabForTier(nextTier))
         {
-            Fruit newFruit = fruitFactory.CreateFruitAtPosition(nextTier, mergePosition);
-            if (newFruit != null)
+            MergeObject newObj = objectFactory.CreateObjectAtPosition(nextTier, mergePosition);
+            if (newObj != null)
             {
-                // New fruit starts with full physics (falls naturally)
-                newFruit.SetKinematic(false);
-                newFruit.SetPhysicsEnabled(true);
-                RegisterFruit(newFruit);
+                // New object starts with full physics (falls naturally)
+                newObj.SetKinematic(false);
+                newObj.SetPhysicsEnabled(true);
+                RegisterMergeObject(newObj);
 
-                // Update highest fruit display only if this is a new best
-                if (scoreManager != null && newFruit.GetTier() >= GetHighestTier())
+                // Update highest object display only if this is a new best
+                if (scoreManager != null && newObj.GetTier() >= GetHighestTier())
                 {
-                    scoreManager.UpdateHighestFruit(newFruit.GetFruitName());
+                    scoreManager.UpdateHighestObject(newObj.GetObjectName());
                 }
             }
         }
         else
         {
-            Debug.LogWarning($"FruitFactory: No prefab for tier {nextTier}. " +
+            Debug.LogWarning($"MergeObjectFactory: No prefab for tier {nextTier}. " +
                              $"Create the class and prefab, then assign it to slot {nextTier}!");
         }
     }
@@ -214,31 +214,31 @@ public class GameManager : MonoBehaviour
     // ============================================
 
     /// <summary>
-    /// Checks if any fruit has been above the game over line for too long.
-    /// Uses a foreach loop over the polymorphic List<Fruit>.
+    /// Checks if any object has been above the game over line for too long.
+    /// Uses a foreach loop over the polymorphic List<MergeObject>.
     /// </summary>
     void CheckGameOverCondition()
     {
-        bool fruitAboveLine = false;
+        bool objectAboveLine = false;
 
         // TEACHING: foreach loop over a polymorphic collection.
-        // Each 'fruit' in the loop could be Cherry, Grape, Orange, etc.
+        // Each 'obj' in the loop could be any derived type.
         // We don't need to know which type -- we just check the position.
-        foreach (Fruit fruit in activeFruits)
+        foreach (MergeObject obj in activeObjects)
         {
-            if (fruit != null && fruit.transform.position.y > gameOverLineY)
+            if (obj != null && obj.transform.position.y > gameOverLineY)
             {
-                // Only count fruits that have settled (not currently being dropped)
-                Rigidbody2D fruitRb = fruit.GetComponent<Rigidbody2D>();
-                if (fruitRb != null && fruitRb.bodyType == RigidbodyType2D.Dynamic)
+                // Only count objects that have settled (not currently being dropped)
+                Rigidbody2D objRb = obj.GetComponent<Rigidbody2D>();
+                if (objRb != null && objRb.bodyType == RigidbodyType2D.Dynamic)
                 {
-                    fruitAboveLine = true;
+                    objectAboveLine = true;
                     break;
                 }
             }
         }
 
-        if (fruitAboveLine)
+        if (objectAboveLine)
         {
             gameOverTimer += Time.deltaTime;
             if (gameOverTimer >= gameOverDelay)
@@ -292,25 +292,26 @@ public class GameManager : MonoBehaviour
     // iterating a collection of base-class references and calling virtual
     // methods that dispatch to the correct derived version.
     //
-    // In each loop, 'fruit' is typed as Fruit, but the actual objects
-    // are Cherry, Grape, Orange, etc. When we call fruit.GetTier() or
-    // fruit.GetPointValue(), the DERIVED version runs automatically.
+    // In each loop, 'obj' is typed as MergeObject, but the actual objects
+    // are your classes (TierZero, TierOne, TierTwo, etc.). When we call
+    // obj.GetTier() or obj.GetPointValue(), the DERIVED version runs
+    // automatically.
     //
     // Session 3: Walk through these methods with the instructor to see
     // polymorphism in action with a running game.
     // =====================================================================
 
     /// <summary>
-    /// Counts how many active fruits have the specified tier.
-    /// Demonstrates polymorphism: fruit.GetTier() returns the derived value.
+    /// Counts how many active objects have the specified tier.
+    /// Demonstrates polymorphism: obj.GetTier() returns the derived value.
     /// </summary>
-    public int CountFruitsOfTier(int targetTier)
+    public int CountObjectsOfTier(int targetTier)
     {
         int count = 0;
 
-        foreach (Fruit fruit in activeFruits)
+        foreach (MergeObject obj in activeObjects)
         {
-            if (fruit != null && fruit.GetTier() == targetTier)
+            if (obj != null && obj.GetTier() == targetTier)
             {
                 count++;
             }
@@ -320,36 +321,27 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Sums the point values of all active fruits.
-    /// Demonstrates polymorphism: fruit.GetPointValue() returns each fruit's specific value.
+    /// Sums the point values of all active objects.
+    /// Demonstrates polymorphism: obj.GetPointValue() returns each object's specific value.
     /// </summary>
-    public int GetTotalFruitPoints()
+    public int GetTotalObjectPoints()
     {
-        int total = 0;
-
-        foreach (Fruit fruit in activeFruits)
-        {
-            if (fruit != null)
-            {
-                total += fruit.GetPointValue();
-            }
-        }
-
-        return total;
+        // TODO: Use a foreach loop to iterate activeObjects and sum each object's GetPointValue()
+        return 0;
     }
 
     /// <summary>
-    /// Returns the highest tier among all active fruits.
+    /// Returns the highest tier among all active objects.
     /// </summary>
     public int GetHighestTier()
     {
         int highest = -1;
 
-        foreach (Fruit fruit in activeFruits)
+        foreach (MergeObject obj in activeObjects)
         {
-            if (fruit != null && fruit.GetTier() > highest)
+            if (obj != null && obj.GetTier() > highest)
             {
-                highest = fruit.GetTier();
+                highest = obj.GetTier();
             }
         }
 
@@ -357,32 +349,21 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns the name of the highest-tier active fruit.
-    /// Demonstrates polymorphism: fruit.GetFruitName() returns the derived name.
+    /// Returns the name of the highest-tier active object.
+    /// Demonstrates polymorphism: obj.GetObjectName() returns the derived name.
     /// </summary>
-    public string GetHighestFruitName()
+    public string GetHighestObjectName()
     {
-        int highestTier = -1;
-        string highestName = "None";
-
-        foreach (Fruit fruit in activeFruits)
-        {
-            if (fruit != null && fruit.GetTier() > highestTier)
-            {
-                highestTier = fruit.GetTier();
-                highestName = fruit.GetFruitName();
-            }
-        }
-
-        return highestName;
+        // TODO: Use a foreach loop to find the object with the highest GetTier(), then return its GetObjectName()
+        return "None";
     }
 
     /// <summary>
-    /// Returns the total number of active fruits in the container.
+    /// Returns the total number of active objects in the container.
     /// </summary>
-    public int GetActiveFruitCount()
+    public int GetActiveObjectCount()
     {
-        return activeFruits.Count;
+        return activeObjects.Count;
     }
 
 

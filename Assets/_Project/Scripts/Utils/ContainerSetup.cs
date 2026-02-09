@@ -1,5 +1,5 @@
 /*
- * GAME 220: Watermelon Merge Template
+ * GAME 220: Merge Template
  * Session 1: Container Setup (PRE-BUILT)
  *
  * TEACHING FOCUS:
@@ -8,7 +8,7 @@
  * - Inspector-tunable dimensions
  *
  * This script creates a box container with three walls (left, right, bottom)
- * and an open top for fruits to drop into. Walls are created automatically
+ * and an open top for objects to drop into. Walls are created automatically
  * when the scene starts, so you don't need to manually build them.
  *
  * STUDENT TASKS:
@@ -50,7 +50,7 @@ public class ContainerSetup : MonoBehaviour
     void Awake()
     {
         // Create three walls: left, right, and bottom
-        // The top is open so fruits can be dropped in
+        // The top is open so objects can be dropped in
 
         // Left wall
         CreateWall(
@@ -117,7 +117,7 @@ public class ContainerSetup : MonoBehaviour
         }
         renderer.sprite = wallSprite;
 
-        // Set sorting order behind fruits
+        // Set sorting order behind objects
         renderer.sortingOrder = -1;
     }
 

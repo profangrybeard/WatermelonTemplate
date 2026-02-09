@@ -1,10 +1,10 @@
 /*
- * GAME 220: Watermelon Merge Template
+ * GAME 220: Merge Template
  * Session 1: Score Manager (PRE-BUILT)
  *
  * TEACHING FOCUS:
  * - UI Text integration with UnityEngine.UI
- * - Public methods called by other scripts (GameManager, Fruit)
+ * - Public methods called by other scripts (GameManager, MergeObject)
  * - Separation of concerns: scoring logic is separate from game logic
  *
  * This script follows the same pattern as the SlitherTemplate's ScoreManager.
@@ -31,8 +31,8 @@ public class ScoreManager : MonoBehaviour
     [Tooltip("Drag the Game Over Text UI element from the Canvas")]
     public Text gameOverText;
 
-    [Tooltip("(Optional) Drag a Text element to show the highest fruit achieved")]
-    public Text highestFruitText;
+    [Tooltip("(Optional) Drag a Text element to show the highest merge object achieved")]
+    public Text highestObjectText;
 
 
     // ============================================
@@ -57,10 +57,10 @@ public class ScoreManager : MonoBehaviour
             gameOverText.gameObject.SetActive(false);
         }
 
-        // Initialize highest fruit display
-        if (highestFruitText != null)
+        // Initialize highest object display
+        if (highestObjectText != null)
         {
-            highestFruitText.text = "Best: --";
+            highestObjectText.text = "Best: --";
         }
     }
 
@@ -70,7 +70,7 @@ public class ScoreManager : MonoBehaviour
     // ============================================
 
     /// <summary>
-    /// Adds points to the current score. Called by GameManager.MergeFruits().
+    /// Adds points to the current score. Called by GameManager.MergeObjects().
     /// </summary>
     public void AddScore(int points)
     {
@@ -79,14 +79,14 @@ public class ScoreManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Updates the highest fruit display text.
+    /// Updates the highest merge object display text.
     /// Called by GameManager when a new highest tier is achieved.
     /// </summary>
-    public void UpdateHighestFruit(string fruitName)
+    public void UpdateHighestObject(string objectName)
     {
-        if (highestFruitText != null)
+        if (highestObjectText != null)
         {
-            highestFruitText.text = $"Best: {fruitName}";
+            highestObjectText.text = $"Best: {objectName}";
         }
     }
 

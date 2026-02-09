@@ -1,27 +1,27 @@
 /*
- * GAME 220: Watermelon Merge Template
- * Sessions 1-5: Fruit Base Class
+ * GAME 220: Merge Template
+ * Sessions 1-5: MergeObject Base Class
  *
  * TEACHING FOCUS:
- * - INHERITANCE: This is the BASE CLASS that all fruits inherit from
+ * - INHERITANCE: This is the BASE CLASS that all merge objects inherit from
  * - PROTECTED FIELDS: Fields marked 'protected' are accessible by this class AND its children
  * - VIRTUAL METHODS: Methods marked 'virtual' CAN be overridden by derived classes
- * - POLYMORPHISM: Code that references Fruit can work with ANY derived fruit type
+ * - POLYMORPHISM: Code that references MergeObject can work with ANY derived type
  *
- * This script defines the shared behavior for ALL fruit types in the game.
- * Cherry, Strawberry, Grape, Orange, and every other fruit INHERITS from this class.
+ * This script defines the shared behavior for ALL merge object types in the game.
+ * TierZero, TierOne, TierTwo, and every object students create INHERITS from this class.
  * That means they automatically get all the fields, methods, and logic defined here.
  *
  * WHAT THIS BASE CLASS PROVIDES:
  * - Protected fields for tier, size, color, points, and name
  * - Virtual methods that derived classes can override to customize behavior
- * - Merge detection logic (OnCollisionEnter2D) that works for ALL fruit types
+ * - Merge detection logic (OnCollisionEnter2D) that works for ALL derived types
  * - Physics helpers for the drop controller
  * - Automatic visual setup (size, color) from derived class values
  *
  * STUDENT TASKS:
  * - Session 1: Read and understand this base class
- * - Session 4: Override OnMerge() in your fruit classes for custom effects
+ * - Session 4: Override OnMerge() in your classes for custom effects
  * - Session 5 (STRETCH): Convert this class to abstract
  */
 
@@ -31,19 +31,20 @@ using UnityEngine;
 // TEACHING: BASE CLASS
 //
 // A base class is a blueprint that other classes can INHERIT from.
-// 'Fruit' defines what ALL fruits have in common: a tier, a size,
-// a color, points, and the ability to merge.
+// 'MergeObject' defines what ALL merge objects have in common: a tier,
+// a size, a color, points, and the ability to merge.
 //
-// Derived classes (Cherry, Grape, Orange, etc.) inherit everything here
-// and customize it by overriding the Awake() method to set their own values.
+// Derived classes (TierZero, TierOne, TierTwo, and your own creations)
+// inherit everything here and customize it by overriding Awake() to set
+// their own values.
 //
-// The colon syntax below means "Fruit inherits from MonoBehaviour":
-//   public class Fruit : MonoBehaviour
+// The colon syntax below means "MergeObject inherits from MonoBehaviour":
+//   public class MergeObject : MonoBehaviour
 //
-// When Cherry says "public class Cherry : Fruit", it means:
-//   "Cherry inherits everything from Fruit (which inherits from MonoBehaviour)"
+// When TierZero says "public class TierZero : MergeObject", it means:
+//   "TierZero inherits everything from MergeObject (which inherits from MonoBehaviour)"
 // =====================================================================
-public class Fruit : MonoBehaviour
+public class MergeObject : MonoBehaviour
 {
     // ============================================
     // PROTECTED FIELDS (Set by Derived Classes)
@@ -54,22 +55,22 @@ public class Fruit : MonoBehaviour
     //
     // 'protected' means: this class AND any class that inherits from it
     // can read and write these fields. Classes that do NOT inherit from
-    // Fruit cannot access them.
+    // MergeObject cannot access them.
     //
     // Compare with:
     //   private   = ONLY this class can access (too restrictive for children)
     //   public    = ANY class can access (too open, no protection)
     //   protected = this class + children (just right for inheritance!)
     //
-    // Each derived class (Cherry, Grape, etc.) sets these values in its
-    // own Awake() method. For example, Cherry sets tier = 0, fruitSize = 0.5f, etc.
+    // Each derived class sets these values in its own Awake() method.
+    // For example, TierZero sets tier = 0, objectSize = 0.5f, etc.
     // =====================================================================
 
-    protected int tier = 0;                      // Position in the merge chain (0=Cherry, 10=Watermelon)
-    protected string fruitName = "Fruit";        // Display name for UI and debug messages
-    protected int pointValue = 0;                // Score points awarded when this fruit is part of a merge
-    protected float fruitSize = 1f;              // Transform.localScale multiplier (bigger number = bigger fruit)
-    protected Color fruitColor = Color.white;    // SpriteRenderer color tint
+    protected int tier = 0;                      // Position in the merge chain (0 = first, highest = last)
+    protected string objectName = "MergeObject"; // Display name for UI and debug messages
+    protected int pointValue = 0;                // Score points awarded when this object is part of a merge
+    protected float objectSize = 1f;             // Transform.localScale multiplier (bigger number = bigger object)
+    protected Color objectColor = Color.white;   // SpriteRenderer color tint
 
     // ============================================
     // COMPONENT REFERENCES (Cached in Awake)
@@ -103,12 +104,12 @@ public class Fruit : MonoBehaviour
     // derived classes CAN override. If a derived class doesn't override it,
     // this base version runs instead.
     //
-    // Awake() is virtual so that derived classes (Cherry, Grape, etc.)
+    // Awake() is virtual so that derived classes (TierZero, TierOne, etc.)
     // can override it to set their own tier, size, color, and points.
     // The full startup flow is:
-    //   1. Derived Awake() sets field values (tier, fruitSize, etc.)
+    //   1. Derived Awake() sets field values (tier, objectSize, etc.)
     //   2. Derived Awake() calls base.Awake() to cache component references
-    //   3. Start() calls ApplyFruitProperties() to apply values to Unity components
+    //   3. Start() calls ApplyObjectProperties() to apply values to Unity components
     //
     // Compare with 'abstract' (Session 5 stretch): an abstract method
     // has NO default -- derived classes MUST override it.
@@ -127,12 +128,12 @@ public class Fruit : MonoBehaviour
     }
 
     /// <summary>
-    /// Applies the fruit's visual properties after Awake has run.
+    /// Applies the object's visual properties after Awake has run.
     /// </summary>
     protected virtual void Start()
     {
         // Apply the values set by the derived class to the actual Unity components
-        ApplyFruitProperties();
+        ApplyObjectProperties();
     }
 
 
@@ -141,20 +142,20 @@ public class Fruit : MonoBehaviour
     // ============================================
 
     /// <summary>
-    /// Applies fruitSize and fruitColor to the Unity components.
+    /// Applies objectSize and objectColor to the Unity components.
     /// Called automatically in Start(). Not virtual -- derived classes
     /// should NOT override this. Instead, set the protected fields
     /// in Awake() and let this method do the rest.
     /// </summary>
-    protected void ApplyFruitProperties()
+    protected void ApplyObjectProperties()
     {
-        // Apply scale (fruitSize controls how big the fruit appears)
-        transform.localScale = Vector3.one * fruitSize;
+        // Apply scale (objectSize controls how big the object appears)
+        transform.localScale = Vector3.one * objectSize;
 
         // Apply color to the sprite renderer
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = fruitColor;
+            spriteRenderer.color = objectColor;
         }
     }
 
@@ -170,21 +171,20 @@ public class Fruit : MonoBehaviour
     // By default, they return the protected field values set in Awake().
     //
     // POLYMORPHISM IN ACTION:
-    // When code calls fruit.GetTier() on a Fruit reference, the DERIVED
-    // version runs if the actual object is Cherry, Grape, etc.
+    // When code calls obj.GetTier() on a MergeObject reference, the DERIVED
+    // version runs if the actual object is TierZero, TierOne, etc.
     // This is called "virtual method dispatch" or "dynamic dispatch."
     //
     // Example:
-    //   Fruit myFruit = someCherry;  // Typed as Fruit, actual object is Cherry
-    //   myFruit.GetTier();           // Calls Cherry's version -> returns 0
+    //   MergeObject obj = someTierZero;  // Typed as MergeObject, actual object is TierZero
+    //   obj.GetTier();                   // Calls TierZero's version -> returns 0
     //
-    //   Fruit myFruit = someGrape;   // Typed as Fruit, actual object is Grape
-    //   myFruit.GetTier();           // Calls Grape's version -> returns 2
+    //   MergeObject obj = someTierTwo;   // Typed as MergeObject, actual object is TierTwo
+    //   obj.GetTier();                   // Calls TierTwo's version -> returns 2
     // =====================================================================
 
     /// <summary>
-    /// Returns this fruit's tier (position in the merge chain).
-    /// Cherry = 0, Strawberry = 1, ... Watermelon = 10.
+    /// Returns this object's tier (position in the merge chain).
     /// </summary>
     public virtual int GetTier()
     {
@@ -192,7 +192,7 @@ public class Fruit : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns the score points this fruit is worth when merged.
+    /// Returns the score points this object is worth when merged.
     /// </summary>
     public virtual int GetPointValue()
     {
@@ -200,17 +200,17 @@ public class Fruit : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns the display name of this fruit (e.g., "Cherry", "Watermelon").
+    /// Returns the display name of this object (e.g., "TierZero", "TierTwo").
     /// </summary>
-    public virtual string GetFruitName()
+    public virtual string GetObjectName()
     {
-        return fruitName;
+        return objectName;
     }
 
     /// <summary>
-    /// Returns the tier of the fruit that results from merging two of this type.
-    /// Default: tier + 1 (next fruit in the chain).
-    /// Watermelon overrides this to return -1 (no further merge possible).
+    /// Returns the tier that results from merging two of this type.
+    /// Default: tier + 1 (next in the chain).
+    /// Override this to return -1 if this is the final tier (no further merge possible).
     /// </summary>
     public virtual int GetMergeResultTier()
     {
@@ -220,7 +220,7 @@ public class Fruit : MonoBehaviour
     // =====================================================================
     // TEACHING: OnMerge() -- THE SESSION 4 OVERRIDE TARGET
     //
-    // This virtual method is called on BOTH fruits right before they merge.
+    // This virtual method is called on BOTH objects right before they merge.
     // The default implementation just logs a message.
     //
     // In Session 4, you will OVERRIDE this method in your derived classes
@@ -228,24 +228,24 @@ public class Fruit : MonoBehaviour
     // funny messages -- anything you want!
     //
     // Because OnMerge() is virtual, the merge detection code (below) can call
-    // OnMerge() on any Fruit reference, and the DERIVED version will run.
+    // OnMerge() on any MergeObject reference, and the DERIVED version will run.
     // This is polymorphism: same method call, different behavior per type.
     //
     // Example override in a derived class:
     //   public override void OnMerge()
     //   {
-    //       Debug.Log("Two cherries are merging! Pop!");
+    //       Debug.Log("Two of mine are merging! Pop!");
     //       // Add your custom effects here
     //   }
     // =====================================================================
 
     /// <summary>
-    /// Called on both fruits when they merge. Override in derived classes
+    /// Called on both objects when they merge. Override in derived classes
     /// to add custom merge effects (Session 4).
     /// </summary>
     public virtual void OnMerge()
     {
-        Debug.Log($"{fruitName} is merging!");
+        Debug.Log($"{objectName} is merging!");
     }
 
 
@@ -254,8 +254,8 @@ public class Fruit : MonoBehaviour
     // ============================================
 
     /// <summary>
-    /// Returns true if this fruit has already been claimed for a merge this frame.
-    /// Prevents the same fruit from being merged twice simultaneously.
+    /// Returns true if this object has already been claimed for a merge this frame.
+    /// Prevents the same object from being merged twice simultaneously.
     /// </summary>
     public bool HasMerged()
     {
@@ -263,7 +263,7 @@ public class Fruit : MonoBehaviour
     }
 
     /// <summary>
-    /// Marks this fruit as claimed for a merge. Called during collision detection.
+    /// Marks this object as claimed for a merge. Called during collision detection.
     /// </summary>
     public void SetMerged()
     {
@@ -280,61 +280,60 @@ public class Fruit : MonoBehaviour
     //
     // This method is called by Unity's physics system when two NON-TRIGGER
     // colliders touch. We use OnCollisionEnter2D (not OnTriggerEnter2D)
-    // because fruits need real physics to stack on top of each other.
+    // because objects need real physics to stack on top of each other.
     //
     // CRITICAL INSIGHT: This merge logic is written ONCE in the base class,
-    // but it works for ALL 11 fruit types. Cherry, Grape, Watermelon --
-    // they ALL inherit this exact code. That's the power of inheritance.
+    // but it works for ALL derived types. TierZero, TierTwo, and every
+    // class you create -- they ALL inherit this exact code.
+    // That's the power of inheritance.
     //
     // POLYMORPHISM BREAKDOWN (every line marked with [POLY] uses it):
-    //   GetComponent<Fruit>()      [POLY] Finds Cherry, Grape, ANY derived type
-    //   GetTier()                  [POLY] Returns the DERIVED class's tier value
-    //   otherFruit.GetTier()       [POLY] Returns the OTHER fruit's derived tier
-    //   GetMergeResultTier()       [POLY] Returns tier+1, or -1 for Watermelon
-    //   OnMerge()                  [POLY] Calls the DERIVED class's custom effects
-    //   otherFruit.OnMerge()       [POLY] Calls the OTHER fruit's custom effects
+    //   GetComponent<MergeObject>() [POLY] Finds ANY derived type
+    //   GetTier()                   [POLY] Returns the DERIVED class's tier value
+    //   otherObject.GetTier()       [POLY] Returns the OTHER object's derived tier
+    //   GetMergeResultTier()        [POLY] Returns tier+1, or -1 for the final tier
+    //   OnMerge()                   [POLY] Calls the DERIVED class's custom effects
+    //   otherObject.OnMerge()       [POLY] Calls the OTHER object's custom effects
     // =====================================================================
     private void OnCollisionEnter2D(Collision2D other)
     {
-        // [POLY] GetComponent<Fruit>() finds ANY derived type through the base class.
-        // If the other object has a Cherry script, this still finds it because
-        // Cherry inherits from Fruit. Same for Grape, Orange, Watermelon, etc.
-        Fruit otherFruit = other.gameObject.GetComponent<Fruit>();
+        // [POLY] GetComponent<MergeObject>() finds ANY derived type through the base class.
+        // If the other object has a TierZero script, this still finds it because
+        // TierZero inherits from MergeObject. Same for TierOne, TierTwo, and your classes.
+        MergeObject otherObject = other.gameObject.GetComponent<MergeObject>();
 
-        // Safety check: did the other object actually have a Fruit component?
-        if (otherFruit == null) return;
+        // Safety check: did the other object actually have a MergeObject component?
+        if (otherObject == null) return;
 
-        // Prevent double-merging: if either fruit is already part of a merge, skip
-        if (hasMerged || otherFruit.HasMerged()) return;
+        // Prevent double-merging: if either object is already part of a merge, skip
+        if (hasMerged || otherObject.HasMerged()) return;
 
-        // [POLY] GetTier() calls the DERIVED version for each fruit.
-        // If 'this' is a Cherry, GetTier() returns 0.
-        // If 'otherFruit' is also a Cherry, otherFruit.GetTier() also returns 0.
+        // [POLY] GetTier() calls the DERIVED version for each object.
+        // If 'this' is a TierZero, GetTier() returns 0.
+        // If 'otherObject' is also a TierZero, otherObject.GetTier() also returns 0.
         // Same tier = they can merge!
-        if (GetTier() == otherFruit.GetTier())
+        if (GetTier() == otherObject.GetTier())
         {
-            // [POLY] GetMergeResultTier() returns tier + 1 for most fruits.
-            // Watermelon overrides it to return -1 (cannot merge further).
+            // [POLY] GetMergeResultTier() returns tier + 1 for most objects.
+            // The final tier overrides it to return -1 (cannot merge further).
             if (GetMergeResultTier() != -1)
             {
-                // Mark both fruits as merged to prevent other collisions
+                // Mark both objects as merged to prevent other collisions
                 // from trying to merge them again this frame
                 SetMerged();
-                otherFruit.SetMerged();
+                otherObject.SetMerged();
 
-                // [POLY] OnMerge() calls the DERIVED version for each fruit.
-                // If this is a Cherry, Cherry's OnMerge() runs.
-                // If this is an Orange, Orange's OnMerge() runs.
-                // Each fruit can have different merge effects! (Session 4)
+                // [POLY] OnMerge() calls the DERIVED version for each object.
+                // Each class can have different merge effects! (Session 4)
                 OnMerge();
-                otherFruit.OnMerge();
+                otherObject.OnMerge();
 
                 // Delegate to GameManager to handle the actual merge:
-                // destroy both fruits and spawn the next tier
+                // destroy both objects and spawn the next tier
                 GameManager gm = FindFirstObjectByType<GameManager>();
                 if (gm != null)
                 {
-                    gm.MergeFruits(this, otherFruit);
+                    gm.MergeObjects(this, otherObject);
                 }
             }
         }
@@ -346,8 +345,8 @@ public class Fruit : MonoBehaviour
     // ============================================
 
     /// <summary>
-    /// Enables or disables physics simulation on this fruit.
-    /// When disabled, the fruit freezes in place (useful while aiming).
+    /// Enables or disables physics simulation on this object.
+    /// When disabled, the object freezes in place (useful while aiming).
     /// </summary>
     public void SetPhysicsEnabled(bool enabled)
     {
@@ -359,8 +358,8 @@ public class Fruit : MonoBehaviour
 
     /// <summary>
     /// Toggles between Kinematic (no physics forces) and Dynamic (full physics).
-    /// Kinematic = fruit stays where you put it (aiming mode).
-    /// Dynamic = fruit falls with gravity and collides (dropped mode).
+    /// Kinematic = object stays where you put it (aiming mode).
+    /// Dynamic = object falls with gravity and collides (dropped mode).
     /// </summary>
     public void SetKinematic(bool isKinematic)
     {
@@ -368,7 +367,7 @@ public class Fruit : MonoBehaviour
         {
             rb.bodyType = isKinematic ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
 
-            // When switching to kinematic, zero out velocity so the fruit
+            // When switching to kinematic, zero out velocity so the object
             // doesn't carry momentum from previous physics interactions
             if (isKinematic)
             {
