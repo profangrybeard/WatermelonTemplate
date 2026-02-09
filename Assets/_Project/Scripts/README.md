@@ -1,8 +1,8 @@
-# Watermelon Merge Template - Teaching Guide
+# Merge Template - Teaching Guide
 
 ## GAME 220: Core Programming - Inheritance and Polymorphism
 
-This template is designed as an **MVP with scaffolding** - students complete TODO sections to learn inheritance while building a working merge game.
+This template is designed as an **MVP with examples** — students study 3 working reference classes, then create their own derived classes to learn inheritance while building a working merge game.
 
 ---
 
@@ -10,95 +10,94 @@ This template is designed as an **MVP with scaffolding** - students complete TOD
 
 ### The MVP Approach
 
-1. **Session 1:** Everything works with 3 fruit types (Cherry, Strawberry, Grape merge correctly)
-2. **Sessions 2-3:** Students create derived fruit classes following the Cherry pattern
+1. **Session 1:** Everything works with 3 object types (TierZero, TierOne, TierTwo merge correctly)
+2. **Session 2+:** Students create their OWN derived classes following the TierZero pattern
 3. **Session 4:** Students override OnMerge() for custom effects
-4. **Session 5:** Stretch goal - convert to abstract class
+4. **Session 5:** Stretch goal — convert to abstract class
 
 ### What Students Write vs What's Provided
 
-| Concept | Provided (Complete) | Students Write |
-|---------|---------------------|----------------|
-| Fruit base class | `Fruit.cs` with all fields, virtual methods, merge detection | - |
-| Reference fruits | `Cherry.cs`, `Strawberry.cs`, `Grape.cs` | - |
-| Session 2 fruits | TODO scaffolds | `Orange.cs`, `Dekopon.cs`, `Apple.cs` |
-| Session 3 fruits | TODO scaffolds | `Pear.cs` through `Watermelon.cs` |
-| Merge detection | `OnCollisionEnter2D()` in Fruit.cs | - |
-| Merge effects | Default `OnMerge()` in Fruit.cs | Override `OnMerge()` per fruit (Session 4) |
-| Drop controller | `DropController.cs` | - |
-| Game manager | `GameManager.cs` with `List<Fruit>` | - |
-| Factory | `FruitFactory.cs` with `CreateFruit()` | - |
-| Scoring | `ScoreManager.cs` | - |
-| Container | `ContainerSetup.cs` | - |
+| Concept | Provided (Complete) | Students Create |
+|---------|---------------------|-----------------|
+| Base class | `MergeObject.cs` with all fields, virtual methods, merge detection | — |
+| Reference examples | `TierZero.cs`, `TierOne.cs`, `TierTwo.cs` | — |
+| Their own objects | — | New classes inheriting from MergeObject (theme is theirs to choose) |
+| Merge detection | `OnCollisionEnter2D()` in MergeObject.cs | — |
+| Merge effects | Default `OnMerge()` in MergeObject.cs | Override `OnMerge()` per class (Session 4) |
+| Query methods | `CountObjectsOfTier()`, `GetHighestTier()` | `GetTotalObjectPoints()`, `GetHighestObjectName()` (TODO stubs) |
+| Drop controller | `DropController.cs` | — |
+| Game manager | `GameManager.cs` with `List<MergeObject>` | — |
+| Factory | `MergeObjectFactory.cs` with `CreateObject()` | — |
+| Scoring | `ScoreManager.cs` | — |
+| Container | `ContainerSetup.cs` | — |
 
 ---
 
 ## Session Breakdown
 
 ### Session 1: Explore + Understand Base Class
-**Status:** Complete - no student work required
+**Status:** Complete — no student work required
 
 **What Works:**
-- 3 fruit types drop, fall with gravity, stack in container
-- Two Cherries merge into Strawberry, two Strawberries merge into Grape
+- 3 object types drop, fall with gravity, stack in container
+- Two TierZeros merge into TierOne, two TierOnes merge into TierTwo
 - Score increases on merge
-- Game over triggers when fruits stack too high
+- Game over triggers when objects stack too high
 
 **Teaching Points:**
-- What does `: Fruit` mean in `public class Cherry : Fruit`?
+- What does `: MergeObject` mean in `public class TierZero : MergeObject`?
 - What is `protected` and why not `private` or `public`?
 - What does `virtual` mean on `GetTier()`?
 - What does `base.Awake()` do and why is it needed?
-- In DropController.cs, `currentFruit` is typed as `Fruit` — why not `Cherry`?
-- In GameManager.cs, `List<Fruit>` holds Cherry, Strawberry, and Grape — how?
+- In DropController.cs, `currentObject` is typed as `MergeObject` — why not `TierZero`?
+- In GameManager.cs, `List<MergeObject>` holds TierZero, TierOne, and TierTwo — how?
 
 **Demo Ideas:**
-- Change Cherry's fruitSize in code, show the fruit changes
-- Remove base.Awake() from Cherry, show the NullReferenceException
-- Open FruitFactory Inspector, show the prefab array slots
+- Change TierZero's objectSize in code, show the object changes
+- Remove base.Awake() from TierZero, show the NullReferenceException
+- Open MergeObjectFactory Inspector, show the prefab array slots
 
 ---
 
 ### Session 2: First Derived Classes
-**TODO Locations:** `Orange.cs`, `Dekopon.cs`, `Apple.cs`
+**Students create their own .cs files from scratch**
 
-**Learning Goal:** Write a derived class following the Cherry pattern
+**Learning Goal:** Write a derived class following the TierZero pattern
 
 **The Pattern:**
 ```csharp
-public class Orange : Fruit
+public class YourClassName : MergeObject
 {
     protected override void Awake()
     {
         tier = 3;
-        fruitName = "Orange";
+        objectName = "YourClassName";
         pointValue = 10;
-        fruitSize = 1.0f;
-        fruitColor = new Color(1.0f, 0.65f, 0.0f);
+        objectSize = 1.0f;
+        objectColor = new Color(1.0f, 0.65f, 0.0f);
         base.Awake();
     }
 }
 ```
 
 **Teaching Points:**
-- `: Fruit` means "inherits from Fruit"
+- `: MergeObject` means "inherits from MergeObject"
 - `override` replaces the parent's version
 - `base.Awake()` calls the parent's version
-- Same pattern for every fruit — only values change
+- Same pattern for every class — only values change
+- Students pick their own theme, names, colors, and sizes
 
 **Verification:**
-- 6 fruit types appear when dropping
-- Orange, Dekopon, Apple have correct sizes and colors
+- New objects appear when dropping
+- Objects have correct sizes and colors
 - Merging works through the new tiers
 
 ---
 
-### Session 3: Remaining Fruits + Polymorphism
-**TODO Locations:** `Pear.cs`, `Peach.cs`, `Pineapple.cs`, `Melon.cs`, `Watermelon.cs`
+### Session 3: Polymorphism Deep Dive
+**Students may add more classes; focus shifts to understanding WHY it all works**
 
-**Learning Goal:** Complete the merge chain, understand polymorphism
-
-**Special Case — Watermelon:**
+**The Final Tier — Override GetMergeResultTier():**
 ```csharp
 public override int GetMergeResultTier()
 {
@@ -107,14 +106,14 @@ public override int GetMergeResultTier()
 ```
 
 **Polymorphism Teaching Script:**
-- Open GameManager.cs, find `List<Fruit> activeFruits`
-- "This list holds Cherry, Grape, Peach — ANY derived type"
-- "When we call `fruit.GetTier()` in the foreach loop, which version runs?"
-- Answer: "The derived version. Cherry returns 0, Grape returns 2, Peach returns 7"
+- Open GameManager.cs, find `List<MergeObject> activeObjects`
+- "This list holds TierZero, TierTwo, your classes — ANY derived type"
+- "When we call `obj.GetTier()` in the foreach loop, which version runs?"
+- Answer: "The derived version. Each class returns its own tier value"
 
-**Verification:**
-- Full merge chain: Cherry → Strawberry → ... → Watermelon
-- Two Watermelons do NOT merge
+**TODO Query Methods:**
+- Students complete `GetTotalObjectPoints()` and `GetHighestObjectName()` in GameManager.cs
+- They follow the pattern from the working `CountObjectsOfTier()` and `GetHighestTier()` methods
 
 ---
 
@@ -123,35 +122,34 @@ public override int GetMergeResultTier()
 
 **Example:**
 ```csharp
-// In Cherry.cs:
 public override void OnMerge()
 {
-    Debug.Log("Pop! Two cherries merged!");
+    Debug.Log("Pop! Two of mine merged!");
 }
 ```
 
 **Teaching Points:**
-- Same merge code in Fruit.cs calls OnMerge() on every fruit
-- Each fruit can have DIFFERENT effects — that's polymorphism
-- The merge system never checks "is this a Cherry?" — it just calls OnMerge()
+- Same merge code in MergeObject.cs calls OnMerge() on every object
+- Each class can have DIFFERENT effects — that's polymorphism
+- The merge system never checks "is this a TierZero?" — it just calls OnMerge()
 
 ---
 
 ### Session 5: Abstract Refactor (Stretch)
 **Learning Goal:** Understand abstract vs virtual
 
-**Changes to Fruit.cs:**
+**Changes to MergeObject.cs:**
 ```csharp
 // Change class declaration:
-public abstract class Fruit : MonoBehaviour
+public abstract class MergeObject : MonoBehaviour
 
 // Add a new abstract method:
-protected abstract void InitializeFruitProperties();
+protected abstract void InitializeMergeObjectProperties();
 
 // Update Awake() to call it:
 protected virtual void Awake()
 {
-    InitializeFruitProperties();  // Derived classes MUST implement this
+    InitializeMergeObjectProperties();  // Derived classes MUST implement this
     rb = GetComponent<Rigidbody2D>();
     circleCollider = GetComponent<CircleCollider2D>();
     spriteRenderer = GetComponent<SpriteRenderer>();
@@ -163,7 +161,7 @@ protected virtual void Awake()
 protected override void Awake()
 {
     tier = 0;
-    fruitName = "Cherry";
+    objectName = "TierZero";
     // ... set values ...
     base.Awake();
 }
@@ -171,10 +169,10 @@ protected override void Awake()
 
 **To:**
 ```csharp
-protected override void InitializeFruitProperties()
+protected override void InitializeMergeObjectProperties()
 {
     tier = 0;
-    fruitName = "Cherry";
+    objectName = "TierZero";
     // ... set values ...
 }
 // No Awake() override needed. No base.Awake() call needed.
@@ -184,7 +182,7 @@ protected override void InitializeFruitProperties()
 - `virtual` = CAN override (optional)
 - `abstract` = MUST override (required, compiler enforces it)
 - Cannot instantiate abstract class directly
-- Forgetting to implement `InitializeFruitProperties()` causes a compiler error
+- Forgetting to implement `InitializeMergeObjectProperties()` causes a compiler error
 
 ---
 
@@ -196,8 +194,8 @@ protected override void InitializeFruitProperties()
 
 | Term | Meaning |
 |------|---------|
-| Base class | A class that other classes inherit from (`Fruit`) |
-| Derived class | A class that inherits from another (`Cherry : Fruit`) |
+| Base class | A class that other classes inherit from (`MergeObject`) |
+| Derived class | A class that inherits from another (`TierZero : MergeObject`) |
 | `protected` | Accessible by this class AND its children |
 | `virtual` | Method that CAN be overridden by derived classes |
 | `override` | Replaces the parent's version of a method |
@@ -207,24 +205,22 @@ protected override void InitializeFruitProperties()
 
 ---
 
-## Student Implementation Checklist
+## Student Checklist
 
 ### Session 2 Checklist
-- [ ] Orange.cs compiles with correct values
-- [ ] Dekopon.cs compiles with correct values
-- [ ] Apple.cs compiles with correct values
-- [ ] Created 3 prefabs, assigned to FruitFactory slots 3-5
-- [ ] 6 fruit types appear in game
+- [ ] At least 1 new class created, compiles with correct values
+- [ ] Created prefab with SpriteRenderer + Rigidbody2D + CircleCollider2D + your script
+- [ ] Assigned prefab to correct MergeObjectFactory slot
+- [ ] New object appears in game with correct size and color
 
 ### Session 3 Checklist
-- [ ] Pear through Melon complete with correct values
-- [ ] Watermelon overrides GetMergeResultTier() → returns -1
-- [ ] Created 5 prefabs, assigned to FruitFactory slots 6-10
+- [ ] Final tier class overrides GetMergeResultTier() → returns -1
+- [ ] TODO query methods completed in GameManager.cs
 - [ ] Full merge chain works
-- [ ] Two Watermelons do NOT merge
+- [ ] Two final-tier objects do NOT merge
 
 ### Session 4 Checklist
-- [ ] At least 3 fruits have custom OnMerge() overrides
+- [ ] At least 3 classes have custom OnMerge() overrides
 - [ ] Each override produces different behavior
 - [ ] Merge effects trigger correctly during gameplay
 
@@ -232,24 +228,24 @@ protected override void InitializeFruitProperties()
 
 ## Troubleshooting
 
-### "New fruit doesn't appear"
-- Check prefab has the correct derived script (not just Fruit)
-- Check FruitFactory Inspector — is the prefab in the right slot?
+### "New object doesn't appear"
+- Check prefab has the correct derived script (not just MergeObject)
+- Check MergeObjectFactory Inspector — is the prefab in the right slot?
 - Verify base.Awake() is called in the derived Awake()
 
-### "Fruits don't merge"
-- Both fruits need Rigidbody2D and CircleCollider2D
+### "Objects don't merge"
+- Both objects need Rigidbody2D and CircleCollider2D
 - Colliders must NOT be set as Trigger
-- Check tier values match between the two fruits
+- Check tier values match between the two objects
 
-### "NullReferenceException on fruit"
+### "NullReferenceException on object"
 - Usually means base.Awake() was not called
 - Check derived class has `base.Awake();` at the end of Awake()
 
 ### "Wrong size or color"
-- Verify fruitSize and fruitColor values in derived Awake()
+- Verify objectSize and objectColor values in derived Awake()
 - Make sure values are set before calling base.Awake()
 
 ---
 
-**Happy Teaching!**
+**Our Business is Fun!**

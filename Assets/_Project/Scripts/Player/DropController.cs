@@ -1,22 +1,22 @@
 /*
- * GAME 220: Watermelon Merge Template
+ * GAME 220: Merge Template
  * Session 1: Drop Controller (PRE-BUILT)
  *
  * TEACHING FOCUS:
- * - POLYMORPHIC VARIABLE: 'currentFruit' is typed as Fruit (base class)
- *   but holds Cherry, Grape, Orange, etc. (derived types)
+ * - POLYMORPHIC VARIABLE: 'currentObject' is typed as MergeObject (base class)
+ *   but holds TierZero, TierOne, TierTwo, etc. (derived types)
  * - Input handling with both mouse and keyboard
  * - State management (aiming vs cooldown)
  *
- * This script handles the player's ability to aim and drop fruits:
+ * This script handles the player's ability to aim and drop merge objects:
  * - Mouse: Move cursor left/right to aim, click to drop
  * - Keyboard: A/D or Arrow Keys to aim, Space to drop
  * - Cooldown between drops prevents spam
- * - Creates random low-tier fruits via FruitFactory
+ * - Creates random low-tier objects via MergeObjectFactory
  *
  * STUDENT TASKS:
  * - This file is fully pre-built. Students do NOT need to modify it.
- * - Students should notice that 'currentFruit' is typed as Fruit, not Cherry.
+ * - Students should notice that 'currentObject' is typed as MergeObject, not TierZero.
  *   This is polymorphism: the variable holds ANY derived type.
  */
 
@@ -41,7 +41,7 @@ public class DropController : MonoBehaviour
     [Tooltip("Right boundary for aiming (inside container)")]
     public float maxX = 2.5f;
 
-    [Tooltip("Highest tier that can be randomly dropped (0=Cherry, 1=Strawberry, 2=Grape)")]
+    [Tooltip("Highest tier that can be randomly dropped (0=TierZero, 1=TierOne, 2=TierTwo)")]
     public int maxDropTier = 2;
 
     [Header("Aim Settings")]
@@ -53,8 +53,8 @@ public class DropController : MonoBehaviour
     // ============================================
 
     [Header("References")]
-    [Tooltip("Drag the FruitFactory component from the scene")]
-    public FruitFactory fruitFactory;
+    [Tooltip("Drag the MergeObjectFactory component from the scene")]
+    public MergeObjectFactory objectFactory;
 
     [Tooltip("Drag the GameManager component from the scene")]
     public GameManager gameManager;
@@ -67,22 +67,22 @@ public class DropController : MonoBehaviour
     // =====================================================================
     // TEACHING: POLYMORPHIC VARIABLE
     //
-    // 'currentFruit' is typed as Fruit (the base class), but the actual
-    // object stored in it is Cherry, Grape, Orange, or whatever fruit
-    // the FruitFactory created.
+    // 'currentObject' is typed as MergeObject (the base class), but the actual
+    // object stored in it is TierZero, TierOne, TierTwo, or whatever merge object
+    // the MergeObjectFactory created.
     //
-    // We don't need separate variables for each fruit type:
-    //   Cherry currentCherry;      // NO! Don't do this.
-    //   Grape currentGrape;        // NO! Don't do this.
-    //   Orange currentOrange;      // NO! Don't do this.
+    // We don't need separate variables for each object type:
+    //   TierZero currentTierZero;      // NO! Don't do this.
+    //   TierOne currentTierOne;        // NO! Don't do this.
+    //   TierTwo currentTierTwo;        // NO! Don't do this.
     //
     // Instead, ONE variable typed as the base class handles ALL types:
-    //   Fruit currentFruit;        // YES! Holds any derived type.
+    //   MergeObject currentObject;     // YES! Holds any derived type.
     //
-    // When we call currentFruit.GetFruitName(), currentFruit.GetTier(), etc.,
+    // When we call currentObject.GetMergeObjectName(), currentObject.GetTier(), etc.,
     // the correct derived version runs. That's polymorphism.
     // =====================================================================
-    private Fruit currentFruit;
+    private MergeObject currentObject;
 
     private float cooldownTimer = 0f;
     private bool canDrop = true;
@@ -97,7 +97,7 @@ public class DropController : MonoBehaviour
     void Start()
     {
         aimX = 0f; // Start aiming at center
-        SpawnNextFruit();
+        SpawnNextObject();
     }
 
     void Update()
@@ -111,18 +111,18 @@ public class DropController : MonoBehaviour
             if (cooldownTimer <= 0f)
             {
                 canDrop = true;
-                SpawnNextFruit();
+                SpawnNextObject();
             }
             return;
         }
 
         // Handle aiming and dropping
         HandleInput();
-        PositionCurrentFruit();
+        PositionCurrentObject();
 
         if (ShouldDrop())
         {
-            DropFruit();
+            DropObject();
         }
     }
 
@@ -166,7 +166,7 @@ public class DropController : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns true if the player wants to drop the current fruit.
+    /// Returns true if the player wants to drop the current object.
     /// Supports mouse click and spacebar.
     /// </summary>
     bool ShouldDrop()
@@ -176,69 +176,69 @@ public class DropController : MonoBehaviour
 
 
     // ============================================
-    // FRUIT MANAGEMENT
+    // OBJECT MANAGEMENT
     // ============================================
 
     /// <summary>
-    /// Creates a new random fruit for the player to aim and drop.
-    /// The fruit starts in kinematic mode (no gravity) until dropped.
+    /// Creates a new random merge object for the player to aim and drop.
+    /// The object starts in kinematic mode (no gravity) until dropped.
     /// </summary>
-    void SpawnNextFruit()
+    void SpawnNextObject()
     {
-        if (fruitFactory == null) return;
+        if (objectFactory == null) return;
 
         // Limit the drop tier to what's available in the factory
-        int availableMaxTier = Mathf.Min(maxDropTier, fruitFactory.GetMaxTier());
+        int availableMaxTier = Mathf.Min(maxDropTier, objectFactory.GetMaxTier());
         if (availableMaxTier < 0) return;
 
         // Pick a random tier from the droppable range
         int randomTier = Random.Range(0, availableMaxTier + 1);
 
-        // TEACHING: CreateFruit returns a Fruit reference, but the actual object
-        // is Cherry, Grape, etc. We store it in our Fruit-typed variable.
-        currentFruit = fruitFactory.CreateFruit(randomTier);
+        // TEACHING: CreateObject returns a MergeObject reference, but the actual object
+        // is TierZero, TierOne, etc. We store it in our MergeObject-typed variable.
+        currentObject = objectFactory.CreateObject(randomTier);
 
-        if (currentFruit != null)
+        if (currentObject != null)
         {
-            // Set the fruit to kinematic so it floats at the aim position
+            // Set the object to kinematic so it floats at the aim position
             // (no gravity until the player drops it)
-            currentFruit.SetKinematic(true);
-            currentFruit.SetPhysicsEnabled(true);
+            currentObject.SetKinematic(true);
+            currentObject.SetPhysicsEnabled(true);
 
             // Position at the current aim point
-            PositionCurrentFruit();
+            PositionCurrentObject();
         }
     }
 
     /// <summary>
-    /// Moves the current fruit to follow the aim position.
+    /// Moves the current object to follow the aim position.
     /// </summary>
-    void PositionCurrentFruit()
+    void PositionCurrentObject()
     {
-        if (currentFruit != null)
+        if (currentObject != null)
         {
-            currentFruit.transform.position = new Vector3(aimX, dropLineY, 0f);
+            currentObject.transform.position = new Vector3(aimX, dropLineY, 0f);
         }
     }
 
     /// <summary>
-    /// Drops the current fruit by enabling physics and starting the cooldown.
+    /// Drops the current object by enabling physics and starting the cooldown.
     /// </summary>
-    void DropFruit()
+    void DropObject()
     {
-        if (currentFruit == null) return;
+        if (currentObject == null) return;
 
-        // Enable full physics so the fruit falls with gravity
-        currentFruit.SetKinematic(false);
+        // Enable full physics so the object falls with gravity
+        currentObject.SetKinematic(false);
 
         // Register with GameManager for tracking
         if (gameManager != null)
         {
-            gameManager.RegisterFruit(currentFruit);
+            gameManager.RegisterMergeObject(currentObject);
         }
 
         // Clear the reference and start cooldown
-        currentFruit = null;
+        currentObject = null;
         canDrop = false;
         cooldownTimer = dropCooldown;
     }
@@ -250,16 +250,16 @@ public class DropController : MonoBehaviour
 
     /// <summary>
     /// Called by GameManager when the game is over.
-    /// Destroys the current aiming fruit and stops further drops.
+    /// Destroys the current aiming object and stops further drops.
     /// </summary>
     public void OnGameOver()
     {
         isGameOver = true;
 
-        if (currentFruit != null)
+        if (currentObject != null)
         {
-            Destroy(currentFruit.gameObject);
-            currentFruit = null;
+            Destroy(currentObject.gameObject);
+            currentObject = null;
         }
     }
 

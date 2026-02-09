@@ -1,50 +1,36 @@
 # Inheritance Concepts Reference
 
-**GAME 220: Core Programming -- Watermelon Merge Game**
+**GAME 220: Core Programming -- Merge Game**
 
-This document maps inheritance vocabulary to the actual code in your Watermelon Merge project.
+This document maps inheritance vocabulary to the actual code in your Merge project.
 Every definition below includes the exact file and line where you can see the concept in action.
 
 ---
 
-## The Fruit Hierarchy
+## The MergeObject Hierarchy
 
 ```
                         MonoBehaviour
                              |
-                          Fruit           <-- BASE CLASS (Fruit.cs)
-                             |                Defines: tier, fruitName, pointValue,
-                             |                fruitSize, fruitColor, merge detection,
+                       MergeObject        <-- BASE CLASS (MergeObject.cs)
+                             |                Defines: tier, objectName, pointValue,
+                             |                objectSize, objectColor, merge detection,
                              |                physics helpers, virtual methods
                              |
-     +-----------+-----------+-----------+-----------+-----------+
-     |           |           |           |           |           |
-   Cherry    Strawberry    Grape      Orange     Dekopon      Apple
-   tier=0     tier=1      tier=2     tier=3      tier=4      tier=5
-     |           |           |           |           |           |
-   (small)   (small)     (medium)   (medium)    (medium)    (large)
-     |           |           |           |           |           |
-     +-----------+-----------+-----------+-----------+-----------+
-                             |
-     +-----------+-----------+-----------+-----------+-----------+
-     |           |           |           |           |           |
-    Pear      Peach     Pineapple     Melon    Watermelon       |
-   tier=6     tier=7      tier=8     tier=9     tier=10         |
-     |           |           |           |           |           |
-   (large)   (large)     (huge)     (huge)    (biggest)         |
-     |           |           |           |           |           |
-     +-----------+-----------+-----------+-----------+-----------+
+     +-----------+-----------+-----------+
+     |           |           |           |
+  TierZero    TierOne     TierTwo    (student-created classes)
+   tier=0     tier=1      tier=2     tier=3, 4, ...
 
-   MERGE CHAIN:  Cherry + Cherry --> Strawberry
-                 Strawberry + Strawberry --> Grape
-                 Grape + Grape --> Orange
+   MERGE CHAIN:  TierZero + TierZero --> TierOne
+                 TierOne + TierOne --> TierTwo
+                 TierTwo + TierTwo --> (next student-created tier)
                  ... and so on ...
-                 Melon + Melon --> Watermelon
-                 Watermelon + Watermelon --> NOTHING (max tier!)
+                 Final tier + Final tier --> NOTHING (max tier!)
 
-   ALL 11 DERIVED CLASSES inherit the SAME fields and methods from Fruit.
+   ALL DERIVED CLASSES inherit the SAME fields and methods from MergeObject.
    Each one ONLY overrides Awake() to set its own values.
-   Watermelon ALSO overrides GetMergeResultTier() to return -1.
+   The final tier ALSO overrides GetMergeResultTier() to return -1.
 ```
 
 ---
@@ -53,36 +39,36 @@ Every definition below includes the exact file and line where you can see the co
 
 ---
 
-### Base Class (Fruit.cs)
+### Base Class (MergeObject.cs)
 
 **Definition:** A base class is a class that other classes inherit from. It defines the
 shared fields and methods that all derived classes receive automatically.
 
-**In our game:** `Fruit` is the base class. It lives in `Assets/_Project/Scripts/Fruits/Fruit.cs`.
-Every fruit in the game -- Cherry, Strawberry, Grape, all the way to Watermelon --
-inherits from `Fruit`.
+**In our game:** `MergeObject` is the base class. It lives in `Assets/_Project/Scripts/MergeObjects/MergeObject.cs`.
+Every object in the game -- TierZero, TierOne, TierTwo, and all student-created classes --
+inherits from `MergeObject`.
 
 **What the base class provides:**
 
-| Category               | What Fruit.cs Declares                                         |
-|------------------------|----------------------------------------------------------------|
-| Protected fields       | `tier`, `fruitName`, `pointValue`, `fruitSize`, `fruitColor`   |
-| Component references   | `rb`, `circleCollider`, `spriteRenderer`                       |
-| Virtual methods        | `Awake()`, `Start()`, `GetTier()`, `GetPointValue()`, etc.     |
-| Merge detection        | `OnCollisionEnter2D()` -- works for ALL fruit types            |
-| Physics helpers        | `SetPhysicsEnabled()`, `SetKinematic()`                        |
+| Category               | What MergeObject.cs Declares                                      |
+|------------------------|-------------------------------------------------------------------|
+| Protected fields       | `tier`, `objectName`, `pointValue`, `objectSize`, `objectColor`   |
+| Component references   | `rb`, `circleCollider`, `spriteRenderer`                          |
+| Virtual methods        | `Awake()`, `Start()`, `GetTier()`, `GetPointValue()`, etc.        |
+| Merge detection        | `OnCollisionEnter2D()` -- works for ALL object types              |
+| Physics helpers        | `SetPhysicsEnabled()`, `SetKinematic()`                           |
 
-**Code snippet** (from `Fruit.cs`):
+**Code snippet** (from `MergeObject.cs`):
 
 ```csharp
-public class Fruit : MonoBehaviour
+public class MergeObject : MonoBehaviour
 {
     // Protected fields -- accessible by derived classes
     protected int tier = 0;
-    protected string fruitName = "Fruit";
+    protected string objectName = "MergeObject";
     protected int pointValue = 0;
-    protected float fruitSize = 1f;
-    protected Color fruitColor = Color.white;
+    protected float objectSize = 1f;
+    protected Color objectColor = Color.white;
 
     // Cached component references
     protected Rigidbody2D rb;
@@ -99,13 +85,13 @@ public class Fruit : MonoBehaviour
 }
 ```
 
-**Plain English:** Think of `Fruit` as a template. It says "every fruit has a tier, a name,
+**Plain English:** Think of `MergeObject` as a template. It says "every merge object has a tier, a name,
 a point value, a size, and a color." It does not know *which* tier or *which* color -- that
-is left to each specific fruit class to fill in.
+is left to each specific derived class to fill in.
 
 ---
 
-### Derived Class (Cherry.cs, Grape.cs, etc.)
+### Derived Class (TierZero.cs, TierOne.cs, etc.)
 
 **Definition:** A derived class is a class that inherits from a base class. It receives all
 the base class fields and methods, and can customize behavior by overriding virtual methods.
@@ -113,42 +99,42 @@ the base class fields and methods, and can customize behavior by overriding virt
 **The `:` syntax:** The colon after the class name means "inherits from."
 
 ```csharp
-public class Cherry : Fruit      // Cherry inherits from Fruit
-public class Grape : Fruit       // Grape inherits from Fruit
-public class Watermelon : Fruit  // Watermelon inherits from Fruit
+public class TierZero : MergeObject      // TierZero inherits from MergeObject
+public class TierOne : MergeObject       // TierOne inherits from MergeObject
+public class TierTwo : MergeObject       // TierTwo inherits from MergeObject
 ```
 
 **What each derived class customizes:** Only the values. The structure is identical every time.
 
-**Code snippet** (from `Cherry.cs`):
+**Code snippet** (from `TierZero.cs`):
 
 ```csharp
-public class Cherry : Fruit    // <-- the colon means "inherits from"
+public class TierZero : MergeObject    // <-- the colon means "inherits from"
 {
     protected override void Awake()
     {
-        tier = 0;                                       // Cherry is first in the chain
-        fruitName = "Cherry";                           // Display name
-        pointValue = 1;                                 // Small fruit = small points
-        fruitSize = 0.5f;                               // Smallest fruit
-        fruitColor = new Color(0.85f, 0.12f, 0.15f);   // Bright red
+        tier = 0;                                       // TierZero is first in the chain
+        objectName = "TierZero";                        // Display name
+        pointValue = 1;                                 // Small object = small points
+        objectSize = 0.5f;                              // Smallest object
+        objectColor = new Color(0.85f, 0.12f, 0.15f);  // Bright red
 
         base.Awake();   // Run the parent Awake to cache components
     }
 }
 ```
 
-**What Cherry gets for free** (without writing a single extra line):
+**What TierZero gets for free** (without writing a single extra line):
 
 - `OnCollisionEnter2D()` merge detection
 - `SetPhysicsEnabled()` and `SetKinematic()` physics helpers
-- `GetTier()`, `GetPointValue()`, `GetFruitName()` getter methods
-- `ApplyFruitProperties()` visual setup
+- `GetTier()`, `GetPointValue()`, `GetObjectName()` getter methods
+- `ApplyObjectProperties()` visual setup
 - All component references (`rb`, `circleCollider`, `spriteRenderer`)
 
-**Plain English:** Cherry says "I am a Fruit, but specifically I am tier 0, I am called
-Cherry, I am worth 1 point, I am small, and I am red." Everything else -- how to merge, how
-to fall, how to render -- it inherits from `Fruit` without doing any extra work.
+**Plain English:** TierZero says "I am a MergeObject, but specifically I am tier 0, I am called
+TierZero, I am worth 1 point, I am small, and I am red." Everything else -- how to merge, how
+to fall, how to render -- it inherits from `MergeObject` without doing any extra work.
 
 ---
 
@@ -162,22 +148,22 @@ from it cannot access protected members.
 
 | Access Modifier | Who Can Access It                     | Use Case in Our Game                          |
 |-----------------|---------------------------------------|-----------------------------------------------|
-| `private`       | Only the declaring class              | `hasMerged` in Fruit.cs -- children do not need direct access |
-| `protected`     | Declaring class + all derived classes | `tier`, `fruitName`, `fruitSize` -- children must set these    |
+| `private`       | Only the declaring class              | `hasMerged` in MergeObject.cs -- children do not need direct access |
+| `protected`     | Declaring class + all derived classes | `tier`, `objectName`, `objectSize` -- children must set these    |
 | `public`        | Any class in the project              | `GetTier()`, `SetPhysicsEnabled()` -- anyone can call these   |
 
-**Code example** (from `Fruit.cs` and `Cherry.cs`):
+**Code example** (from `MergeObject.cs` and `TierZero.cs`):
 
 ```csharp
-// In Fruit.cs -- declared as protected
+// In MergeObject.cs -- declared as protected
 protected int tier = 0;
-protected string fruitName = "Fruit";
+protected string objectName = "MergeObject";
 
-// In Cherry.cs -- accessible because Cherry inherits from Fruit
+// In TierZero.cs -- accessible because TierZero inherits from MergeObject
 protected override void Awake()
 {
-    tier = 0;                  // OK! Cherry can access tier because it is protected
-    fruitName = "Cherry";      // OK! Cherry can access fruitName because it is protected
+    tier = 0;                  // OK! TierZero can access tier because it is protected
+    objectName = "TierZero";   // OK! TierZero can access objectName because it is protected
     base.Awake();
 }
 ```
@@ -185,9 +171,9 @@ protected override void Awake()
 **What would happen with `private` instead?**
 
 ```csharp
-// If Fruit.cs declared:  private int tier = 0;
-// Then Cherry.cs could NOT write:  tier = 0;
-// Compiler error: "Fruit.tier is inaccessible due to its protection level"
+// If MergeObject.cs declared:  private int tier = 0;
+// Then TierZero.cs could NOT write:  tier = 0;
+// Compiler error: "MergeObject.tier is inaccessible due to its protection level"
 ```
 
 **Plain English:** `protected` is the sweet spot for inheritance. It keeps data hidden from
@@ -202,10 +188,10 @@ It is the "family only" access level.
 a default implementation that derived classes *can* replace with their own version, but they
 are not required to.
 
-**Code example** (from `Fruit.cs`):
+**Code example** (from `MergeObject.cs`):
 
 ```csharp
-// In Fruit.cs -- the virtual keyword allows derived classes to override
+// In MergeObject.cs -- the virtual keyword allows derived classes to override
 protected virtual void Awake()
 {
     rb = GetComponent<Rigidbody2D>();
@@ -215,7 +201,7 @@ protected virtual void Awake()
 
 public virtual void OnMerge()
 {
-    Debug.Log($"{fruitName} is merging!");
+    Debug.Log($"{objectName} is merging!");
 }
 
 public virtual int GetMergeResultTier()
@@ -228,11 +214,11 @@ public virtual int GetMergeResultTier()
 
 - When you want a method to have a **default behavior** that works for most derived classes
 - When some derived classes **might want** to customize it, but others are fine with the default
-- Example: `GetMergeResultTier()` defaults to `tier + 1`, which is correct for 10 out of 11
-  fruits. Only Watermelon needs to override it.
+- Example: `GetMergeResultTier()` defaults to `tier + 1`, which is correct for all classes
+  except the final tier. Only the final tier needs to override it.
 
 **Plain English:** `virtual` is like saying "here is the standard way to do this, but if you
-need to do it differently, you are allowed to." Most fruits use the default `OnMerge()` that
+need to do it differently, you are allowed to." Most classes use the default `OnMerge()` that
 just logs a message, but in Session 4 you can override it to add custom effects.
 
 ---
@@ -243,42 +229,42 @@ just logs a message, but in Session 4 you can override it to add custom effects.
 implementation in the derived class. The method signature (name, parameters, return type)
 must match exactly.
 
-**Code example** (from `Cherry.cs`):
+**Code example** (from `TierZero.cs`):
 
 ```csharp
-// In Fruit.cs (base class):
+// In MergeObject.cs (base class):
 protected virtual void Awake()         // <-- virtual = CAN be overridden
 {
     rb = GetComponent<Rigidbody2D>();
     // ...
 }
 
-// In Cherry.cs (derived class):
+// In TierZero.cs (derived class):
 protected override void Awake()        // <-- override = REPLACING the base version
 {
     tier = 0;
-    fruitName = "Cherry";
+    objectName = "TierZero";
     pointValue = 1;
-    fruitSize = 0.5f;
-    fruitColor = new Color(0.85f, 0.12f, 0.15f);
+    objectSize = 0.5f;
+    objectColor = new Color(0.85f, 0.12f, 0.15f);
 
     base.Awake();                      // <-- still calls the base version (see next section)
 }
 ```
 
-**The pattern (used by every fruit class):**
+**The pattern (used by every derived class):**
 
 1. Declare the method with `protected override void Awake()`
-2. Set your specific values (`tier`, `fruitName`, `pointValue`, `fruitSize`, `fruitColor`)
+2. Set your specific values (`tier`, `objectName`, `pointValue`, `objectSize`, `objectColor`)
 3. Call `base.Awake()` at the end to run the parent component caching
 
-**Another override example** (Watermelon overriding `GetMergeResultTier()`):
+**Another override example** (final tier overriding `GetMergeResultTier()`):
 
 ```csharp
-// In Watermelon.cs:
+// In the final tier class:
 public override int GetMergeResultTier()
 {
-    return -1;   // Watermelon is the final fruit -- no further merge possible
+    return -1;   // Final tier -- no further merge possible
 }
 ```
 
@@ -293,20 +279,20 @@ match the original -- you cannot change `protected` to `public` or add extra par
 **Definition:** The `base` keyword refers to the parent (base) class. Calling `base.Method()`
 runs the parent version of an overridden method from within the derived class override.
 
-**Code example** (from `Cherry.cs`):
+**Code example** (from `TierZero.cs`):
 
 ```csharp
 protected override void Awake()
 {
-    // 1. First, set Cherry-specific values
+    // 1. First, set TierZero-specific values
     tier = 0;
-    fruitName = "Cherry";
+    objectName = "TierZero";
     pointValue = 1;
-    fruitSize = 0.5f;
-    fruitColor = new Color(0.85f, 0.12f, 0.15f);
+    objectSize = 0.5f;
+    objectColor = new Color(0.85f, 0.12f, 0.15f);
 
     // 2. Then, call the parent Awake() to cache component references
-    base.Awake();    // <-- runs Fruit.Awake(), which does:
+    base.Awake();    // <-- runs MergeObject.Awake(), which does:
                      //     rb = GetComponent<Rigidbody2D>();
                      //     circleCollider = GetComponent<CircleCollider2D>();
                      //     spriteRenderer = GetComponent<SpriteRenderer>();
@@ -316,7 +302,7 @@ protected override void Awake()
 **What happens if you forget `base.Awake()`?**
 
 If you omit `base.Awake()`, the parent version never runs. That means `rb`,
-`circleCollider`, and `spriteRenderer` will all be **null**. The fruit will:
+`circleCollider`, and `spriteRenderer` will all be **null**. The object will:
 
 - Not respond to physics (no Rigidbody2D reference)
 - Not detect collisions for merging (no collider reference)
@@ -337,91 +323,91 @@ calling your parent to make sure they did their part of the setup.
 
 **Definition:** Polymorphism means "many forms." In C#, it means a variable typed as a base
 class can hold any derived class, and method calls on that variable automatically run the
-correct derived version. You write code that works with the general type (`Fruit`), and it
-automatically works with every specific type (`Cherry`, `Grape`, `Watermelon`, etc.).
+correct derived version. You write code that works with the general type (`MergeObject`), and it
+automatically works with every specific type (`TierZero`, `TierOne`, `TierTwo`, etc.).
 
-**Plain English:** Polymorphism lets you treat all fruits the same way in your code, even
-though each fruit behaves differently. You do not need to write "if this is a Cherry, do X;
-if this is a Grape, do Y." You just call the method, and the right version runs.
+**Plain English:** Polymorphism lets you treat all merge objects the same way in your code, even
+though each one behaves differently. You do not need to write "if this is a TierZero, do X;
+if this is a TierOne, do Y." You just call the method, and the right version runs.
 
 **Three concrete examples from the codebase:**
 
-#### Example 1: Polymorphic Variable -- `Fruit currentFruit` in DropController.cs
+#### Example 1: Polymorphic Variable -- `MergeObject currentObject` in DropController.cs
 
 ```csharp
 // In DropController.cs:
-private Fruit currentFruit;    // Typed as Fruit, but holds Cherry, Grape, etc.
+private MergeObject currentObject;    // Typed as MergeObject, but holds TierZero, TierOne, etc.
 
-void SpawnNextFruit()
+void SpawnNextObject()
 {
-    // FruitFactory returns a Fruit reference, but the actual object
-    // is Cherry, Grape, Orange, or whatever was randomly chosen
-    currentFruit = fruitFactory.CreateFruit(randomTier);
+    // MergeObjectFactory returns a MergeObject reference, but the actual object
+    // is TierZero, TierOne, or whatever was randomly chosen
+    currentObject = mergeObjectFactory.CreateObject(randomTier);
 
-    // These method calls work regardless of which fruit type it actually is
-    currentFruit.SetKinematic(true);
-    currentFruit.SetPhysicsEnabled(true);
+    // These method calls work regardless of which object type it actually is
+    currentObject.SetKinematic(true);
+    currentObject.SetPhysicsEnabled(true);
 }
 ```
 
-We never write `Cherry currentCherry` or `Grape currentGrape`. One variable, typed as
-`Fruit`, handles every type. When the player drops the fruit, it does not matter whether it
-is a Cherry or a Dekopon -- the same code works for all of them.
+We never write `TierZero currentTierZero` or `TierOne currentTierOne`. One variable, typed as
+`MergeObject`, handles every type. When the player drops the object, it does not matter whether it
+is a TierZero or a TierTwo -- the same code works for all of them.
 
-#### Example 2: Polymorphic Collection -- `List<Fruit> activeFruits` in GameManager.cs
+#### Example 2: Polymorphic Collection -- `List<MergeObject> activeObjects` in GameManager.cs
 
 ```csharp
 // In GameManager.cs:
-private List<Fruit> activeFruits = new List<Fruit>();
+private List<MergeObject> activeObjects = new List<MergeObject>();
 
-// This list holds a MIX of Cherry, Grape, Orange, Watermelon, etc.
+// This list holds a MIX of TierZero, TierOne, TierTwo, etc.
 // all at the same time. We never need separate lists per type.
 
 public int GetHighestTier()
 {
     int highest = -1;
 
-    foreach (Fruit fruit in activeFruits)    // Each fruit could be ANY derived type
+    foreach (MergeObject obj in activeObjects)    // Each object could be ANY derived type
     {
-        if (fruit != null && fruit.GetTier() > highest)
+        if (obj != null && obj.GetTier() > highest)
         {
-            highest = fruit.GetTier();   // Calls the derived version automatically
-        }                                // Cherry returns 0, Grape returns 2, etc.
+            highest = obj.GetTier();   // Calls the derived version automatically
+        }                              // TierZero returns 0, TierTwo returns 2, etc.
     }
 
     return highest;
 }
 ```
 
-The `foreach` loop iterates over a mix of different fruit types in a single list. Calling
-`fruit.GetTier()` on each one returns the correct tier for that specific fruit, without
+The `foreach` loop iterates over a mix of different object types in a single list. Calling
+`obj.GetTier()` on each one returns the correct tier for that specific object, without
 any type-checking `if` statements.
 
-#### Example 3: Polymorphic Parameters -- `MergeFruits(Fruit a, Fruit b)` in GameManager.cs
+#### Example 3: Polymorphic Parameters -- `MergeObjects(MergeObject a, MergeObject b)` in GameManager.cs
 
 ```csharp
 // In GameManager.cs:
-public void MergeFruits(Fruit fruitA, Fruit fruitB)
+public void MergeObjects(MergeObject objA, MergeObject objB)
 {
-    // fruitA and fruitB could be ANY fruit type -- two Cherries, two Grapes, etc.
+    // objA and objB could be ANY object type -- two TierZeros, two TierOnes, etc.
 
-    int nextTier = fruitA.GetMergeResultTier();   // Calls the derived version
-    // Most fruits return tier + 1
-    // Watermelon returns -1
+    int nextTier = objA.GetMergeResultTier();   // Calls the derived version
+    // Most objects return tier + 1
+    // The final tier returns -1
 
-    int points = fruitA.GetPointValue() + fruitB.GetPointValue();
-    // Cherry returns 1, Grape returns 6, Orange returns 10, etc.
+    int points = objA.GetPointValue() + objB.GetPointValue();
+    // TierZero returns 1, TierTwo returns 6, etc.
 
-    fruitA.OnMerge();    // Calls the derived version (custom effects in Session 4)
-    fruitB.OnMerge();    // Calls the derived version
+    objA.OnMerge();    // Calls the derived version (custom effects in Session 4)
+    objB.OnMerge();    // Calls the derived version
 
     // Destroy both, spawn the next tier...
 }
 ```
 
 This ONE method handles every possible merge in the game. We never write
-`MergeCherries(Cherry a, Cherry b)` or `MergeGrapes(Grape a, Grape b)`.
-The parameters are typed as `Fruit`, so any two same-tier fruits work.
+`MergeTierZeros(TierZero a, TierZero b)` or `MergeTierOnes(TierOne a, TierOne b)`.
+The parameters are typed as `MergeObject`, so any two same-tier objects work.
 
 ---
 
@@ -443,31 +429,31 @@ produce an error if they do not. An abstract method can only exist inside an abs
 **What it would look like in our game** (Session 5 stretch goal):
 
 ```csharp
-// Fruit.cs becomes an abstract class:
-public abstract class Fruit : MonoBehaviour
+// MergeObject.cs becomes an abstract class:
+public abstract class MergeObject : MonoBehaviour
 {
-    // Abstract method: NO body, NO default -- every fruit MUST implement this
-    protected abstract void InitializeFruitProperties();
+    // Abstract method: NO body, NO default -- every class MUST implement this
+    protected abstract void InitializeMergeObjectProperties();
 
     protected virtual void Awake()
     {
-        InitializeFruitProperties();  // Calls the derived version (guaranteed to exist)
+        InitializeMergeObjectProperties();  // Calls the derived version (guaranteed to exist)
         rb = GetComponent<Rigidbody2D>();
         circleCollider = GetComponent<CircleCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 }
 
-// Cherry.cs MUST implement InitializeFruitProperties() -- compiler error if it does not:
-public class Cherry : Fruit
+// TierZero.cs MUST implement InitializeMergeObjectProperties() -- compiler error if it does not:
+public class TierZero : MergeObject
 {
-    protected override void InitializeFruitProperties()
+    protected override void InitializeMergeObjectProperties()
     {
         tier = 0;
-        fruitName = "Cherry";
+        objectName = "TierZero";
         pointValue = 1;
-        fruitSize = 0.5f;
-        fruitColor = new Color(0.85f, 0.12f, 0.15f);
+        objectSize = 0.5f;
+        objectColor = new Color(0.85f, 0.12f, 0.15f);
     }
 }
 ```
@@ -476,7 +462,7 @@ public class Cherry : Fruit
 
 - When there is **no sensible default** and every derived class **must** provide its own version
 - When you want the **compiler to enforce** that derived classes implement the method
-- When the base class should **never be instantiated** on its own (a generic "Fruit" with no
+- When the base class should **never be instantiated** on its own (a generic "MergeObject" with no
   specific values does not make sense in our game)
 
 **Plain English:** `virtual` says "here is a default, but you can change it." `abstract` says
@@ -486,27 +472,27 @@ public class Cherry : Fruit
 
 ## Side-by-Side Comparison
 
-Below is `Fruit.cs` (base class) on the left and `Cherry.cs` (derived class) on the right,
+Below is `MergeObject.cs` (base class) on the left and `TierZero.cs` (derived class) on the right,
 with annotations showing how they connect.
 
 ```
-  FRUIT.CS (Base Class)                         CHERRY.CS (Derived Class)
+  MERGEOBJECT.CS (Base Class)                   TIERZERO.CS (Derived Class)
   ========================                      ============================
 
-  public class Fruit : MonoBehaviour            public class Cherry : Fruit
+  public class MergeObject : MonoBehaviour      public class TierZero : MergeObject
                    ^                                              ^
                    |                                              |
-         inherits from Unity                            inherits from Fruit
-                                                (gets MonoBehaviour too, through Fruit)
+         inherits from Unity                            inherits from MergeObject
+                                                (gets MonoBehaviour too, through MergeObject)
 
 
   PROTECTED FIELDS (declared here)              SETTING INHERITED FIELDS (in Awake)
   --------------------------------              ------------------------------------
   protected int tier = 0;             <----     tier = 0;
-  protected string fruitName = "Fruit";<----    fruitName = "Cherry";
+  protected string objectName = "MergeObject";<- objectName = "TierZero";
   protected int pointValue = 0;       <----     pointValue = 1;
-  protected float fruitSize = 1f;     <----     fruitSize = 0.5f;
-  protected Color fruitColor;         <----     fruitColor = new Color(0.85f, 0.12f, 0.15f);
+  protected float objectSize = 1f;    <----     objectSize = 0.5f;
+  protected Color objectColor;        <----     objectColor = new Color(0.85f, 0.12f, 0.15f);
 
 
   VIRTUAL METHOD (can be overridden)            OVERRIDE (replaces base version)
@@ -514,45 +500,45 @@ with annotations showing how they connect.
   protected virtual void Awake()       <---->   protected override void Awake()
   {                                             {
       rb = GetComponent<...>();                     tier = 0;
-      circleCollider = GetComponent<>();            fruitName = "Cherry";
+      circleCollider = GetComponent<>();            objectName = "TierZero";
       spriteRenderer = GetComponent<>();            pointValue = 1;
-  }                                                 fruitSize = 0.5f;
-       ^                                            fruitColor = new Color(...);
+  }                                                 objectSize = 0.5f;
+       ^                                            objectColor = new Color(...);
        |
        +-------------------------------------       base.Awake();  // calls the base ^
                                                 }
 
 
-  VIRTUAL METHOD (default behavior)             NOT OVERRIDDEN -- Cherry inherits as-is
+  VIRTUAL METHOD (default behavior)             NOT OVERRIDDEN -- TierZero inherits as-is
   ---------------------------------             -------------------------------------------
-  public virtual int GetTier()                  (Cherry does not override GetTier()
+  public virtual int GetTier()                  (TierZero does not override GetTier()
   {                                              so the base version runs, returning
-      return tier;                               the value Cherry set: 0)
+      return tier;                               the value TierZero set: 0)
   }
 
-  public virtual void OnMerge()                 (Cherry does not override OnMerge()
+  public virtual void OnMerge()                 (TierZero does not override OnMerge()
   {                                              so the base version runs, logging
-      Debug.Log(...);                             "Cherry is merging!")
+      Debug.Log(...);                             "TierZero is merging!")
   }
 
-  public virtual int GetMergeResultTier()       (Cherry does not override this either,
+  public virtual int GetMergeResultTier()       (TierZero does not override this either,
   {                                              so the base returns tier + 1 = 1,
-      return tier + 1;                           meaning two Cherries merge into
-  }                                              tier 1 = Strawberry)
+      return tier + 1;                           meaning two TierZeros merge into
+  }                                              tier 1 = TierOne)
 
 
   PRIVATE FIELD (hidden from children)          NO ACCESS
   ------------------------------------          ---------
-  private bool hasMerged = false;               Cherry CANNOT access hasMerged directly.
+  private bool hasMerged = false;               TierZero CANNOT access hasMerged directly.
                                                 It uses the public HasMerged() and
                                                 SetMerged() methods instead.
 
 
-  NON-VIRTUAL METHODS (inherited as-is)         INHERITED -- Cherry gets these for free
+  NON-VIRTUAL METHODS (inherited as-is)         INHERITED -- TierZero gets these for free
   -------------------------------------         -----------------------------------------
-  public void SetPhysicsEnabled(bool e)         Cherry can call SetPhysicsEnabled()
-  public void SetKinematic(bool k)              Cherry can call SetKinematic()
-  protected void ApplyFruitProperties()         Called by Start() automatically
+  public void SetPhysicsEnabled(bool e)         TierZero can call SetPhysicsEnabled()
+  public void SetKinematic(bool k)              TierZero can call SetKinematic()
+  protected void ApplyObjectProperties()        Called by Start() automatically
   void OnCollisionEnter2D(Collision2D)          Merge detection works automatically
 ```
 
@@ -562,13 +548,15 @@ with annotations showing how they connect.
 
 | # | Mistake | Symptom | Fix |
 |---|---------|---------|-----|
-| 1 | **Forgetting `base.Awake()`** in your derived class | `NullReferenceException` at runtime. The fruit appears in the scene but has no physics, no collision detection, and no color. The console shows errors about null `Rigidbody2D` or `SpriteRenderer`. | Add `base.Awake();` as the **last line** of your derived `Awake()` method. This runs the parent code that caches `rb`, `circleCollider`, and `spriteRenderer`. |
-| 2 | **Using `private` instead of `protected`** on fields in the base class | Compiler error in derived classes: `Fruit.tier is inaccessible due to its protection level`. Your derived class cannot set `tier`, `fruitName`, or other fields. | Change the field declaration in `Fruit.cs` from `private` to `protected`. Remember: `protected` = this class + children. |
-| 3 | **Missing the `override` keyword** on `Awake()` in a derived class | The derived `Awake()` hides the base version instead of overriding it. You get the compiler warning: `Cherry.Awake() hides inherited member Fruit.Awake()`. The base `Awake()` may run instead of (or in addition to) your version, leading to unpredictable behavior. | Change `protected void Awake()` to `protected override void Awake()`. The `override` keyword is required to properly replace a `virtual` method. |
-| 4 | **Forgetting to set all five fields** in the derived `Awake()` | The fruit uses the default values from `Fruit.cs` for any field you forgot. For example, if you forget `fruitSize`, the fruit uses `1f` instead of your intended size. If you forget `fruitName`, the UI shows "Fruit" instead of the actual name. | Set all five fields in every derived class: `tier`, `fruitName`, `pointValue`, `fruitSize`, `fruitColor`. Copy the pattern from `Cherry.cs` and change only the values. |
-| 5 | **Changing the access modifier** when overriding | Compiler error: `Cherry.Awake(): cannot change access modifiers when overriding protected inherited member Fruit.Awake()`. For example, writing `public override void Awake()` when the base uses `protected`. | Match the base class access modifier exactly. If `Fruit.Awake()` is `protected virtual`, your override must be `protected override`. |
-| 6 | **Writing `Fruit` instead of your specific class name** in the class declaration | The file creates a duplicate `Fruit` class instead of a new derived class. Compiler error: `The type Fruit already contains a definition for...` | Make sure your class declaration says `public class YourFruit : Fruit`, not `public class Fruit`. The name before the colon is *your* class; the name after the colon is the *parent*. |
-| 7 | **Calling `base.Awake()` before setting field values** | No compiler error, but the fields may not be set in time for some base class logic. While this happens to work in the current codebase (because `ApplyFruitProperties()` runs in `Start()`), it is a bad habit. The convention in this project is to set values first, then call `base.Awake()`. | Move `base.Awake()` to the **last line** of your override, after all your field assignments. |
-| 8 | **Forgetting the `: Fruit` in the class declaration** | Your class does not inherit from `Fruit`. It has none of the base class fields or methods. Compiler errors everywhere: `tier does not exist in the current context`, `base.Awake() is not valid`, etc. | Add `: Fruit` after your class name: `public class MyFruit : Fruit`. |
-| 9 | **Overriding a non-virtual method** | Compiler error: `Cherry.ApplyFruitProperties(): cannot override inherited member Fruit.ApplyFruitProperties() because it is not marked virtual, abstract, or override`. | Only methods marked `virtual` or `abstract` in the base class can be overridden. In our game, `ApplyFruitProperties()` is intentionally non-virtual -- set the protected fields instead and let the base class apply them. |
-| 10 | **Creating a fruit class without a corresponding prefab** | The fruit class compiles fine, but `FruitFactory` cannot spawn it. The console shows: `FruitFactory: No prefab for tier X. Create the class and prefab, then assign it to slot X!` | After creating your `.cs` file, create a Unity prefab with the script attached, a `Rigidbody2D`, a `CircleCollider2D`, and a `SpriteRenderer`. Then drag the prefab into the correct slot in the `FruitFactory` inspector. |
+| 1 | **Forgetting `base.Awake()`** in your derived class | `NullReferenceException` at runtime. The object appears in the scene but has no physics, no collision detection, and no color. The console shows errors about null `Rigidbody2D` or `SpriteRenderer`. | Add `base.Awake();` as the **last line** of your derived `Awake()` method. This runs the parent code that caches `rb`, `circleCollider`, and `spriteRenderer`. |
+| 2 | **Using `private` instead of `protected`** on fields in the base class | Compiler error in derived classes: `MergeObject.tier is inaccessible due to its protection level`. Your derived class cannot set `tier`, `objectName`, or other fields. | Change the field declaration in `MergeObject.cs` from `private` to `protected`. Remember: `protected` = this class + children. |
+| 3 | **Missing the `override` keyword** on `Awake()` in a derived class | The derived `Awake()` hides the base version instead of overriding it. You get the compiler warning: `TierZero.Awake() hides inherited member MergeObject.Awake()`. The base `Awake()` may run instead of (or in addition to) your version, leading to unpredictable behavior. | Change `protected void Awake()` to `protected override void Awake()`. The `override` keyword is required to properly replace a `virtual` method. |
+| 4 | **Forgetting to set all five fields** in the derived `Awake()` | The object uses the default values from `MergeObject.cs` for any field you forgot. For example, if you forget `objectSize`, the object uses `1f` instead of your intended size. If you forget `objectName`, the UI shows "MergeObject" instead of the actual name. | Set all five fields in every derived class: `tier`, `objectName`, `pointValue`, `objectSize`, `objectColor`. Copy the pattern from `TierZero.cs` and change only the values. |
+| 5 | **Changing the access modifier** when overriding | Compiler error: `TierZero.Awake(): cannot change access modifiers when overriding protected inherited member MergeObject.Awake()`. For example, writing `public override void Awake()` when the base uses `protected`. | Match the base class access modifier exactly. If `MergeObject.Awake()` is `protected virtual`, your override must be `protected override`. |
+| 6 | **Writing `MergeObject` instead of your specific class name** in the class declaration | The file creates a duplicate `MergeObject` class instead of a new derived class. Compiler error: `The type MergeObject already contains a definition for...` | Make sure your class declaration says `public class YourClass : MergeObject`, not `public class MergeObject`. The name before the colon is *your* class; the name after the colon is the *parent*. |
+| 7 | **Calling `base.Awake()` before setting field values** | No compiler error, but the fields may not be set in time for some base class logic. While this happens to work in the current codebase (because `ApplyObjectProperties()` runs in `Start()`), it is a bad habit. The convention in this project is to set values first, then call `base.Awake()`. | Move `base.Awake()` to the **last line** of your override, after all your field assignments. |
+| 8 | **Forgetting the `: MergeObject` in the class declaration** | Your class does not inherit from `MergeObject`. It has none of the base class fields or methods. Compiler errors everywhere: `tier does not exist in the current context`, `base.Awake() is not valid`, etc. | Add `: MergeObject` after your class name: `public class MyClass : MergeObject`. |
+| 9 | **Overriding a non-virtual method** | Compiler error: `TierZero.ApplyObjectProperties(): cannot override inherited member MergeObject.ApplyObjectProperties() because it is not marked virtual, abstract, or override`. | Only methods marked `virtual` or `abstract` in the base class can be overridden. In our game, `ApplyObjectProperties()` is intentionally non-virtual -- set the protected fields instead and let the base class apply them. |
+| 10 | **Creating a class without a corresponding prefab** | The class compiles fine, but `MergeObjectFactory` cannot spawn it. The console shows: `MergeObjectFactory: No prefab for tier X. Create the class and prefab, then assign it to slot X!` | After creating your `.cs` file, create a Unity prefab with the script attached, a `Rigidbody2D`, a `CircleCollider2D`, and a `SpriteRenderer`. Then drag the prefab into the correct slot in the `MergeObjectFactory` inspector. |
+
+Our Business is Fun
