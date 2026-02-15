@@ -438,8 +438,8 @@ Use this table to verify the provided example values are correct.
 | Tier | Class | objectName | pointValue | objectSize | objectColor (R, G, B) |
 |------|-------|-----------|------------|-----------|----------------------|
 | 0 | TierZero | TierZero | 1 | 0.5f | (0.85, 0.12, 0.15) |
-| 1 | TierOne | TierOne | 3 | 0.65f | (0.95, 0.30, 0.35) |
-| 2 | TierTwo | TierTwo | 6 | 0.8f | (0.55, 0.27, 0.68) |
+| 1 | TierOne | TierOne | 3 | 0.65f | (0.20, 0.45, 0.85) |
+| 2 | TierTwo | TierTwo | 6 | 0.8f | (0.20, 0.75, 0.30) |
 
 Student-created classes will have tier values starting from 3 and beyond.
 

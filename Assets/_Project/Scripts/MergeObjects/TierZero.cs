@@ -94,7 +94,7 @@ public class TierZero : MergeObject
         //
         // 'base' refers to the PARENT class (MergeObject). Calling base.Awake()
         // runs MergeObject's version of Awake(), which caches the component
-        // references (Rigidbody2D, CircleCollider2D, SpriteRenderer).
+        // references (Rigidbody2D, SpriteRenderer).
         //
         // If you FORGET to call base.Awake(), the component references
         // will be null, and the object won't render or have physics!

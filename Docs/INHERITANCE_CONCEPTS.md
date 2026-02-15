@@ -337,7 +337,7 @@ void SpawnNextObject()
 {
     // MergeObjectFactory returns a MergeObject reference, but the actual object
     // is TierZero, TierOne, or whatever was randomly chosen
-    currentObject = mergeObjectFactory.CreateObject(randomTier);
+    currentObject = objectFactory.CreateObject(randomTier);
 
     // These method calls work regardless of which object type it actually is
     currentObject.SetKinematic(true);

@@ -86,8 +86,8 @@ Three tiers are provided as complete reference examples. Students create additio
 Tier  Class          Size   Points  Color                              Merge Into     Status
 ----  -----------    -----  ------  ---------------------------------  -----------    ---------
  0    TierZero       0.50   1       new Color(0.85f, 0.12f, 0.15f)    TierOne        GIVEN
- 1    TierOne        0.65   3       new Color(0.95f, 0.30f, 0.35f)    TierTwo        GIVEN
- 2    TierTwo        0.80   6       new Color(0.55f, 0.27f, 0.68f)    (student)      GIVEN
+ 1    TierOne        0.65   3       new Color(0.20f, 0.45f, 0.85f)    TierTwo        GIVEN
+ 2    TierTwo        0.80   6       new Color(0.20f, 0.75f, 0.30f)    (student)      GIVEN
  3+   Student tiers  ...    ...     (student-chosen)                   ...            STUDENT-CREATED
 ```
 
@@ -224,7 +224,7 @@ Same pattern as TierZero with progressively fewer comments (by the third example
 
 - `private MergeObject currentObject` -- **polymorphic variable** typed as base class
 - Mouse input: cursor position to aim, click to drop
-- `SpawnNextObject()` calls `mergeObjectFactory.CreateObject(Random.Range(0, maxDropTier + 1))`
+- `SpawnNextObject()` calls `objectFactory.CreateObject(Random.Range(0, maxDropTier + 1))`
 - Object starts kinematic (no gravity while aiming), switches to dynamic on drop
 - `maxDropTier` Inspector field controls which tiers can spawn (start at 2 for 3-tier game)
 
@@ -242,7 +242,7 @@ Same pattern as TierZero with progressively fewer comments (by the third example
 - `private List<MergeObject> activeObjects` -- **polymorphic collection**
 - `private int score` -- inline score tracking, logged via Debug.Log on merge
 - `public void MergeObjects(MergeObject objA, MergeObject objB)` -- **polymorphic parameters**: gets next tier via `objA.GetMergeResultTier()`, calculates midpoint, awards points via `GetPointValue()`, destroys both, spawns next tier via factory, registers new object
-- `RegisterObject(MergeObject)` / `UnregisterObject(MergeObject)` -- list management
+- `RegisterMergeObject(MergeObject)` / `UnregisterMergeObject(MergeObject)` -- list management
 - Game over detection: foreach over activeObjects, checks Y position against `gameOverLineY`, accumulates timer, triggers after `gameOverDelay` seconds
 - Press R to restart (SceneManager.LoadScene)
 - **Polymorphic query methods** (teaching showcase for Session 3):

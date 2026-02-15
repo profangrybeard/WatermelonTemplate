@@ -29,8 +29,8 @@ These three classes are given as complete reference examples. Study the pattern 
 | Tier | Class | objectName | objectSize | Points | Color (RGBA) | Color Description | Merge Result |
 |---:|---|---|---:|---:|---|---|---|
 | 0 | TierZero | TierZero | 0.50 | 1 | `(0.85, 0.12, 0.15, 1.0)` | Bright red | TierOne (1) |
-| 1 | TierOne | TierOne | 0.65 | 3 | `(0.95, 0.30, 0.35, 1.0)` | Pink-red | TierTwo (2) |
-| 2 | TierTwo | TierTwo | 0.80 | 6 | `(0.55, 0.27, 0.68, 1.0)` | Purple | Your tier 3 |
+| 1 | TierOne | TierOne | 0.65 | 3 | `(0.20, 0.45, 0.85, 1.0)` | Blue | TierTwo (2) |
+| 2 | TierTwo | TierTwo | 0.80 | 6 | `(0.20, 0.75, 0.30, 1.0)` | Green | Your tier 3 |
 
 **Pattern notes:**
 - Size increases gradually with each tier
