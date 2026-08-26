@@ -24,6 +24,13 @@ below assumes that setup is done and committed, which is the state students rece
 | Render pipeline | URP 17.5.0, **2D renderer** (`Renderer2DData`) |
 | Input | Input System 1.20.0 -- **Active Input Handling is New-only** |
 
+**Two consequences of the URP 2D renderer worth knowing before you build anything:** the
+default sprite material is **lit**, so a scene with no light renders every sprite black (add a
+**Global Light 2D**), and object prefabs need their **sprite assigned before the
+CircleCollider2D is added** so Unity auto-fits the radius. Both are covered in
+[Docs/SETUP_INSTRUCTIONS.md](Docs/SETUP_INSTRUCTIONS.md) Steps 2b, 6 and 7, and both have
+entries in [Docs/TROUBLESHOOTING.md](Docs/TROUBLESHOOTING.md) (17 and 18).
+
 **Why New-only:** legacy `Input.GetKeyDown` / `Input.mousePosition` will not compile. Most
 Unity tutorials online still use them, so pasted code fails loudly at compile time instead of
 quietly doing nothing at runtime. Do not set this back to *Both* to make an error go away --

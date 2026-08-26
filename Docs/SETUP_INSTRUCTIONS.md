@@ -14,7 +14,7 @@ types (TierZero, TierOne, TierTwo) before students touch any code.
 > expected; work through the steps below first.
 
 **Already done -- verify only:** Step 2 (camera) and Step 4 (Managers object).
-**Still to do:** Steps 3, 5, 6, 7-10 (prefabs) and Step 11 (wiring).
+**Still to do:** Steps 2b, 3, 5, 6, 7-10 (prefabs) and Step 11 (wiring).
 
 ### Project configuration (already done -- verify only)
 
@@ -51,6 +51,39 @@ setting doing its job; see `Docs/TROUBLESHOOTING.md` issues 15 and 16.
    - **Size:** 6
    - **Position:** (0, 0, -10)
    - **Background Color:** Dark color of your choice (e.g., #1A1A2E)
+
+---
+
+## Step 2b: Add a Global Light 2D — do this before anything else
+
+**Do this first or your sprites will render black.**
+
+1. In the Hierarchy, right-click → **Light** → **Global Light 2D**
+2. Leave Intensity at `1` and Color at white
+
+### Why
+
+This project uses the **URP 2D renderer**. Its renderer asset sets
+`m_DefaultMaterialType: 0`, so every new SpriteRenderer is given a **lit** material. Verified
+in this project: a freshly created SpriteRenderer gets the material **`Sprite-Lit-Default`**,
+shader `Universal Render Pipeline/2D/Sprite-Lit-Default`. A lit sprite in a scene with no
+light has nothing to reflect, so it draws black.
+
+You can confirm it yourself: add a Sprite Renderer to any object and look at its **Material**
+slot. If it says `Sprite-Lit-Default`, that sprite needs a light.
+
+This is the single most confusing thing about a fresh URP 2D scene: your sprite is assigned,
+the collider is right, the script is attached, and the object is simply invisible against a
+dark background. Nothing is broken. There is no light.
+
+Adding a Global Light 2D is harmless even if your sprites would have rendered fine, so add it
+up front rather than debugging it later.
+
+> **Alternative:** set each SpriteRenderer's Material to `Sprite-Unlit-Default`, which ignores
+> lighting entirely. That works, but it has to be repeated on every prefab and it gives up 2D
+> lighting for good. One Global Light 2D in the scene is the better default. If you genuinely
+> want no lighting system at all, staying on the Built-In pipeline was the simpler choice --
+> see `MIGRATION.md` step 3.
 
 ---
 
@@ -145,19 +178,50 @@ Leave the object/factory references empty.
 
 ## Step 6: Create the Circle Sprite
 
-Merge objects need a circle sprite. You can create one or use Unity's built-in:
+Merge objects need a circle sprite. **Aim for a sprite that is about 1 world unit across.**
 
-### Option A: Use Unity's Built-in Circle
-1. In any SpriteRenderer's Sprite field, click the circle picker (dot icon)
-2. Search for **Knob** — this is a built-in circle sprite that ships with Unity UI
-3. Remember this sprite name — you'll use it for all object prefabs
+### Why 1 unit matters
 
-### Option B: Create Your Own
-1. In any image editor, create a white circle on transparent background (128x128 px is fine)
+The derived classes set `objectSize` to `0.5`, `0.65` and `0.8`, and `MergeObject.Awake()`
+applies that as `transform.localScale`. So the sprite's own world size is the base that
+everything else multiplies.
+
+The container's inner width is **6 units** (walls at ±3.25, thickness 0.5, so the inner faces
+sit at ±3.0).
+
+| Base sprite diameter | Tier sizes on screen | Result |
+|---|---|---|
+| **~1 unit** | 0.5 - 0.8 units | ~7 objects across the container. **Correct feel.** |
+| ~0.3 units | 0.15 - 0.24 units | Tiny specks; stacking to the game-over line takes forever |
+| ~2.5 units | 1.25 - 2.0 units | Two or three objects fill the container; game ends instantly |
+
+### Option A (recommended): Unity's built-in circle sprite asset
+
+1. In the Project window: **Assets → Create → 2D → Sprites → Circle**
+2. Save it into `Assets/_Project/Sprites/` (create the folder if needed)
+3. Use this sprite for every object prefab
+
+### Option B: Draw your own
+
+1. In any image editor, create a white circle on a transparent background (128x128 px is fine)
 2. Save as PNG
-3. Drag into `Assets/_Project/Sprites/` folder (create the folder first)
-4. In Import Settings: Texture Type → **Sprite (2D and UI)**, Pixels Per Unit → 128
+3. Drag into `Assets/_Project/Sprites/` (create the folder first)
+4. In Import Settings: Texture Type → **Sprite (2D and UI)**, Pixels Per Unit → **128**
 5. Click **Apply**
+
+128 px at 128 PPU is exactly 1 world unit. If you draw at 256 px, set PPU to 256. **Match PPU
+to the image's pixel width** and you always land on 1 unit.
+
+> **Do not use the built-in `Knob` sprite.** Earlier versions of this guide suggested it. It is
+> a small UI texture and at the default 100 PPU it imports at roughly **0.3 units**, which puts
+> you in the "tiny specks" row of the table above. It also has soft anti-aliased edges that
+> read poorly as fruit.
+
+### Sanity check
+
+Drop the sprite into an empty scene object with scale 1 and look at the SpriteRenderer's
+bounds in the Inspector, or compare it against the 6-unit container. It should be roughly one
+sixth of the container's width.
 
 ---
 
@@ -167,7 +231,7 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 2. Rename it to **TierZero**
 3. Set **Position** to (0, 0, 0)
 
-### Add Components:
+### Add Components — order matters:
 4. **Add Component** → **Sprite Renderer**
    - Sprite: Assign the circle sprite from Step 6
    - Color: Leave white (the script sets color at runtime)
@@ -182,8 +246,19 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
    - Collision Detection: Continuous
 
 6. **Add Component** → **Circle Collider 2D**
-   - Radius: 0.5
+   - **Do not type a radius.** Because the sprite is already assigned, Unity auto-fits the
+     radius to the sprite's bounds. **Leave whatever number it computes.**
    - **Is Trigger: UNCHECKED** (must be false for OnCollisionEnter2D)
+
+> **Assign the sprite before adding the collider.** That ordering is the whole trick — the
+> auto-fit only happens if there is a sprite to measure. Add the collider to a spriteless
+> object and you get a default radius that has nothing to do with what you see.
+>
+> Earlier versions of this guide said to type `0.5`. That is only correct when the sprite
+> happens to be exactly 1 unit across. Force it against a mismatched sprite and objects either
+> visually overlap before merging or float apart with a visible gap — which reads as a broken
+> merge system when the merge code is fine. Scaling by `objectSize` scales sprite and collider
+> together, so once they match at scale 1 they stay matched at every tier.
 
 7. **Add Component** → search for **TierZero** → add the TierZero script
 
@@ -257,6 +332,10 @@ Merge objects need a circle sprite. You can create one or use Unity's built-in:
 2. **You should see:**
    - A box container with 3 walls
    - An object floating at the top following your mouse
+   - The object is **coloured** (TierZero is red), not black. A black circle means the scene
+     has no **Global Light 2D** — go back to Step 2b
+   - The object's collider gizmo hugs its sprite. If it sits inside or outside the circle,
+     see Step 7 and `Docs/TROUBLESHOOTING.md` issue 18
 
 3. **Test dropping:**
    - Click to drop an object

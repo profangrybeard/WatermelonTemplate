@@ -243,6 +243,20 @@ protected override void InitializeMergeObjectProperties()
 - Verify objectSize and objectColor values in derived Awake()
 - Make sure values are set before calling base.Awake()
 
+### "My object is a black circle"
+- The scene has no light. This project uses the **URP 2D renderer**, whose default sprite
+  material is **lit** — a lit sprite with no light draws black
+- Fix: Hierarchy → right-click → **Light** → **Global Light 2D** (intensity 1, white)
+- Turning `objectColor` brighter will NOT help; unlit surface x no light is still black
+- Details: `Docs/TROUBLESHOOTING.md` issue 17
+
+### "Objects overlap, float apart, or sink through the floor"
+- The CircleCollider2D radius does not match the sprite
+- Never type the radius. Assign the sprite FIRST, then add the Circle Collider 2D —
+  Unity auto-fits it to the sprite bounds
+- To repair: remove the collider, confirm the sprite is assigned, re-add the collider
+- Details: `Docs/TROUBLESHOOTING.md` issue 18
+
 ### "error CS0103: The name 'Input' does not exist in the current context"
 - Working as intended. This project is **New Input System only** — legacy `Input.GetKeyDown`
   and `Input.mousePosition` do not compile

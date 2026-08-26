@@ -22,6 +22,8 @@
 14. [Multiple Objects Spawning on Merge](#14-multiple-objects-spawning-on-merge-double-merge-bug)
 15. [Compiler Error: The name 'Input' does not exist](#15-compiler-error-the-name-input-does-not-exist)
 16. [Input Does Nothing and There Is No Error](#16-input-does-nothing-and-there-is-no-error)
+17. [Objects Render Black or Invisible](#17-objects-render-black-or-invisible)
+18. [Collider Does Not Match the Sprite](#18-collider-does-not-match-the-sprite)
 
 ---
 ## 1. Objects Do Not Merge (Same Type)
@@ -547,6 +549,79 @@ If an action does not appear there while the game is running, it was never enabl
 
 ---
 
+## 17. Objects Render Black or Invisible
+
+### Symptom
+Everything else works. Objects spawn, fall, stack and merge — the Console logs merges — but
+the objects are **solid black**, or invisible against a dark background. The sprite is
+assigned. The color values in the derived class look correct.
+
+### Cause
+**The scene has no light.** This project uses the **URP 2D renderer**, whose renderer asset
+sets `m_DefaultMaterialType: 0` — every new SpriteRenderer gets the material
+**`Sprite-Lit-Default`** (shader `Universal Render Pipeline/2D/Sprite-Lit-Default`). A lit
+sprite with no light in the scene has nothing to reflect, so it draws black.
+
+Nothing is broken. There is no light.
+
+**Confirm the diagnosis in two seconds:** select the object and look at the Sprite Renderer's
+**Material** slot. `Sprite-Lit-Default` means it needs a light. `Sprites-Default` or
+`Sprite-Unlit-Default` means the problem is something else.
+
+### Fix
+Hierarchy → right-click → **Light** → **Global Light 2D**. Leave Intensity at `1` and Color
+white. Every sprite in the scene lights up at once.
+
+This is Step 2b of `SETUP_INSTRUCTIONS.md`. If the scene was built before that step existed,
+the light is simply missing.
+
+### Do Not "Fix" This by Setting objectColor Brighter
+Turning `objectColor` up to white does nothing — an unlit surface multiplied by no light is
+still black. Students will try this. It is not the problem.
+
+### Alternative Fix (not recommended)
+Set each SpriteRenderer's Material to `Sprite-Unlit-Default`, which ignores lighting. It
+works, but it must be repeated on every prefab and it gives up 2D lighting permanently. One
+Global Light 2D is better.
+
+---
+
+## 18. Collider Does Not Match the Sprite
+
+### Symptom
+One of these, depending on which way the mismatch runs:
+
+- Objects **overlap visually** — they sink into each other before merging
+- Objects **float apart** — a visible gap between them, and they merge "at a distance"
+- Objects appear to rest on nothing, or sink partway through the floor
+
+It reads as a broken merge system or broken physics. Both are fine.
+
+### Cause
+The `CircleCollider2D` radius does not match the sprite's actual size. This almost always
+comes from **typing a radius by hand** instead of letting Unity fit it, or from adding the
+collider **before** assigning the sprite — the auto-fit only measures a sprite that is already
+there.
+
+A radius of `0.5` is correct *only* if the sprite is exactly 1 world unit across.
+
+### Fix
+1. Select the prefab and look at the green collider gizmo in the Scene view. It should hug the
+   circle's edge
+2. If it does not: **remove** the Circle Collider 2D, confirm the Sprite Renderer has its
+   sprite assigned, then **re-add** the Circle Collider 2D. Unity auto-fits it
+3. Leave the computed radius alone
+
+`objectSize` scales the whole transform, so once sprite and collider match at scale 1, they
+stay matched at every tier. You never need to hand-adjust the radius per tier.
+
+### Related: the sprite itself may be the wrong size
+If objects are correct relative to their colliders but wrong relative to the *container*, the
+base sprite is off. Target **~1 world unit** in diameter — see `SETUP_INSTRUCTIONS.md` Step 6.
+The built-in `Knob` sprite (~0.3 units) is the usual culprit.
+
+---
+
 ## Quick Reference: Provided Tier Table
 
 Use this table to verify the provided example values are correct.
@@ -567,9 +642,9 @@ Every object prefab must have these four components:
 
 | Component | Settings |
 |---|---|
-| SpriteRenderer | Any sprite (default circle works); color is overridden by script |
+| SpriteRenderer | The project's ~1-unit circle sprite; color is overridden by script |
 | Rigidbody2D | Body Type: Dynamic; Gravity Scale: 1 |
-| CircleCollider2D | Is Trigger: unchecked |
+| CircleCollider2D | Is Trigger: unchecked. **Add it after the sprite** so Unity auto-fits the radius — do not type one |
 | [ClassName] script | The correct derived class (TierZero, TierOne, or student-created) |
 
 ---

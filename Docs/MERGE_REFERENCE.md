@@ -113,19 +113,33 @@ Follow these steps for **each** new class you create. Repeat this process for ev
 2. Rename it to match your class name (e.g., `TierThree`)
 
 ### Step 2: Add a SpriteRenderer
+
+**Assign the sprite before you add the collider.** The next step depends on it.
+
 1. With the GameObject selected, click **Add Component** in the Inspector
 2. Search for and add **Sprite Renderer**
-3. For the Sprite field, assign Unity's built-in circle sprite:
-   - Click the small circle icon next to the Sprite field
-   - Search for `Circle` or `Knob` in the sprite selector
-   - Select any round sprite (the color will be overridden by the script)
+3. For the Sprite field, assign **the same circle sprite the other tiers use** — the one in
+   `Assets/_Project/Sprites/`. The color is overridden by your script, so any round sprite
+   works, but using the same one keeps every tier consistently sized.
+
+> **Use the project's sprite, not `Knob`.** The built-in `Knob` texture imports at roughly
+> 0.3 world units, which makes objects far too small for the 6-unit-wide container. The
+> project's circle sprite is sized to ~1 unit on purpose. See `SETUP_INSTRUCTIONS.md` Step 6.
 
 ### Step 3: Add Physics Components
 1. Click **Add Component** and add **Rigidbody 2D**
    - Gravity Scale: `1` (default is fine)
    - Collision Detection: `Continuous` (recommended for fast-moving small objects)
 2. Click **Add Component** and add **Circle Collider 2D**
-   - Radius: `0.5` (the script's `objectSize` will scale the entire transform)
+   - **Do not type a radius.** With the sprite already assigned, Unity auto-fits the radius to
+     the sprite's bounds — **leave the number it computes.**
+   - **Is Trigger: unchecked** (required for `OnCollisionEnter2D`)
+
+> **Why not just type `0.5`?** Because `0.5` is only right when the sprite is exactly 1 unit
+> across. If the collider does not match the sprite, your objects either overlap visually
+> before merging or sit apart with a gap — and it looks like the merge system is broken when
+> it is not. Your script's `objectSize` scales the whole transform, so sprite and collider
+> scale together and stay matched at every tier.
 
 ### Step 4: Add Your Script
 1. Click **Add Component** and search for your class name (e.g., `TierThree`)
@@ -147,6 +161,11 @@ Follow these steps for **each** new class you create. Repeat this process for ev
 ### Verification
 After completing all steps, press **Play** and test:
 - Does the object appear when dropped? (If not: check that the script is attached and `base.Awake()` is called)
+- Is it **visible**, or a black circle? A black sprite means the scene has no **Global Light 2D** —
+  this project uses the URP 2D renderer and its default sprite material is lit. See
+  `Docs/TROUBLESHOOTING.md` issue 17
+- Does the collider match the sprite? Select the prefab and check that the green collider gizmo
+  hugs the circle rather than sitting inside or outside it
 - Does it have the correct color and size? (If not: check your `objectColor` and `objectSize` values)
 - Does it merge with another of the same type? (If not: check that the `tier` value is correct and the prefab is in the right MergeObjectFactory slot)
 - Does the merge produce the correct next object? (If not: check that the next tier's prefab is also assigned)
