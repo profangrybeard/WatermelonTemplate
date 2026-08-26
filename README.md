@@ -10,6 +10,14 @@ The merge system, physics, and game loop are **pre-built**. Students focus exclu
 
 ## Before You Start (Instructors)
 
+> **Two ways to run the scene build.** By default *you* build the scene once and students
+> receive it working ([Docs/SETUP_INSTRUCTIONS.md](Docs/SETUP_INSTRUCTIONS.md)). If you would
+> rather **students build it themselves** as a first session, hand them
+> [Docs/STUDENT_SCENE_BUILD.md](Docs/STUDENT_SCENE_BUILD.md) instead — same scene, written for
+> students, with the reasoning behind each component and a triage table at the end. Note that
+> this shifts Session 1 from reading code to assembling the game; the session plan below
+> assumes the instructor-built default.
+
 **The scene is not built yet.** A fresh clone contains the scripts, a configured camera and a
 **Managers** GameObject (GameManager + MergeObjectFactory) -- but no walls, no sprites, no
 prefabs and no DropController. Pressing Play shows an empty screen until you work through

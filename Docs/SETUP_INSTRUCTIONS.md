@@ -13,6 +13,11 @@ types (TierZero, TierOne, TierTwo) before students touch any code.
 > prefabs, no DropController. Pressing Play on a fresh clone shows an empty screen. That is
 > expected; work through the steps below first.
 
+> **Handing this to students instead?** [STUDENT_SCENE_BUILD.md](STUDENT_SCENE_BUILD.md)
+> covers the same build in student-facing language, with the reasoning behind each component
+> and a triage table. Use that one if students are assembling the scene themselves; use this
+> one if you are building it for them.
+
 **Already done -- verify only:** Step 2 (camera) and Step 4 (Managers object).
 **Still to do:** Steps 2b, 3, 5, 6, 7-10 (prefabs) and Step 11 (wiring).
 
