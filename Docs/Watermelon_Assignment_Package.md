@@ -32,6 +32,12 @@ You must begin from the official Watermelon Template:
 
 **https://github.com/profangrybeard/WatermelonTemplate**
 
+The template runs on **Unity 6000.5.9f1** with **URP (2D renderer)** and the **new Input
+System**. Open it with a matching editor version. Legacy `Input.GetKeyDown` and
+`Input.mousePosition` will not compile — that is deliberate. Copy the `InputAction` pattern
+already in `DropController.cs` if you add new controls, and see `Docs/TROUBLESHOOTING.md`
+issues 15 and 16 when input misbehaves.
+
 You are expected to:
 
 - Use the existing project structure
@@ -349,7 +355,7 @@ One variable type. Many runtime behaviors. That is polymorphism.
 | TierZero.cs | Derived class — reference example #1 | override, base.Awake() |
 | TierOne.cs | Derived class — reference example #2 | Same pattern, fewer comments |
 | TierTwo.cs | Derived class — reference example #3 | Same pattern, minimal comments |
-| DropController.cs | Mouse input, aiming, dropping | Polymorphic variable (`MergeObject currentObject`) |
+| DropController.cs | Aim/Drop input actions, aiming, dropping | Polymorphic variable (`MergeObject currentObject`) |
 | GameManager.cs | Game state, merge execution, score | Polymorphic collection (`List<MergeObject>`), TODO stubs |
 | MergeObjectFactory.cs | Prefab instantiation by tier index | Polymorphic return type, `GetComponent<MergeObject>()` |
 | BuildInfo.cs | Version tracking | Static utility class |

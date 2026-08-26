@@ -8,37 +8,48 @@ https://claude.ai/code/artifact/3480539e-c224-4a43-a2ff-c683f936ab6b
 
 ---
 
-## Where this project stands
+## Status: COMPLETE
 
-Read from disk, 25 Aug 2026.
+Migration finished and compile-verified 26 Aug 2026. The steps below are kept as the record
+of what was done and why.
 
-| | |
-|---|---|
-| Unity | `6000.0.63f1` — needs upgrade |
-| Active Input Handling | `2` (Both) — needs to become `1` (New only) |
-| Render pipeline | Built-In (`m_CustomRenderPipeline: {fileID: 0}`) |
-| Input System package | `1.16.0` |
-| URP package | not installed |
-| TMP `Examples & Extras` | absent ✅ — nothing blocking New-only |
-| EventSystem | none — no Canvas in the scene yet |
-| Legacy input call sites | 3 |
-| Build Settings scene | correct ✅ (`Assets/_Project/Scenes/GameScene.unity`) |
+| | Before (25 Aug) | Now |
+|---|---|---|
+| Unity | `6000.0.63f1` | `6000.5.9f1` |
+| Active Input Handling | `2` (Both) | `1` (New only) |
+| Render pipeline | Built-In | URP 17.5.0, **2D renderer** (`Renderer2DData`) |
+| Input System package | `1.16.0` | `1.20.0` |
+| URP package | not installed | `17.5.0` |
+| TMP `Examples & Extras` | absent | absent |
+| EventSystem | none | none — still no Canvas |
+| Legacy input call sites | 3 | **0** |
+| Build Settings scene | correct | correct |
 
-**This project is the easier of the two.** SlitherTemplate carries TMP's sample folder,
+**Verification.** Unity 6.5 was run headless against the project and compiled
+`Assembly-CSharp.dll` with **zero errors and zero warnings** under New-only input handling:
+
+    Unity.exe -batchmode -quit -nographics -projectPath <project> -logFile compile.log
+
+**Gameplay is NOT verified.** The scene has a camera and nothing else, so there is nothing to
+press Play on. Merge, stack and settle behaviour under Unity 6.5's new 2D physics module is
+still untested — see the warning in step 2. That test has to wait until
+`Docs/SETUP_INSTRUCTIONS.md` has been worked through.
+
+**This project was the easier of the two.** SlitherTemplate carries TMP's sample folder,
 which has 41 legacy `Input.` calls and blocks the New-only switch until it is deleted. That
-folder is not here, so that whole step is skipped.
+folder is not here, so that whole step was skipped.
 
 Scripts live under `Assets/_Project/Scripts/`, not `Assets/Scripts/`.
 
 ---
 
-## Legacy input in this project
+## Legacy input in this project — all three migrated
 
-| File · line | Call | Becomes |
+| File | Was | Now |
 |---|---|---|
-| `Assets/_Project/Scripts/Managers/GameManager.cs:80` | `Input.GetKeyDown(KeyCode.R)` | `restartAction.WasPressedThisFrame()` |
-| `Assets/_Project/Scripts/Player/DropController.cs:122` | `Input.mousePosition` | `aimAction.ReadValue<Vector2>()` |
-| `Assets/_Project/Scripts/Player/DropController.cs:131` | `Input.GetMouseButtonDown(0)` | `dropAction.WasPressedThisFrame()` |
+| `Managers/GameManager.cs` | `Input.GetKeyDown(KeyCode.R)` | `restartAction.WasPressedThisFrame()` |
+| `Player/DropController.cs` | `Input.mousePosition` | `aimAction.ReadValue<Vector2>()` |
+| `Player/DropController.cs` | `Input.GetMouseButtonDown(0)` | `dropAction.WasPressedThisFrame()` |
 
 `DropController` needs both an aim and a drop action — the same shape as Peggle's
 `BallLauncher`, which reads the pointer every frame and fires on a button press. That
@@ -50,11 +61,30 @@ migration is done and tested, so it is worth reading
 
 Peggle had no restart action — that is the one pattern that is new here.
 
+### One deviation from the Peggle pattern: bindings live in code, not YAML
+
+Peggle's scene was already built, so its bindings could be hand-authored into the scene YAML
+(step 4 below). **This project's scene is not built** — `SETUP_INSTRUCTIONS.md` has the
+instructor create every GameObject from scratch, so there is no YAML to author into. A bare
+`[SerializeField] private InputAction aimAction;` would arrive with an *empty binding list*
+every time somebody adds the component, which is the silent-dead-input failure by default.
+
+So the default bindings are set with a field initialiser instead:
+
+    [SerializeField]
+    private InputAction aimAction =
+        new InputAction("Aim", InputActionType.Value, "<Mouse>/position",
+                        expectedControlType: "Vector2");
+
+Unity runs field initialisers when a component is first added, so the action shows up in the
+Inspector already bound — and is still fully rebindable there. Prefer this shape in any
+template whose scene is built by the reader.
+
 ---
 
 ## The migration, in order
 
-### 1. Close Unity first
+### 1. Close Unity first ✅
 
 Scenes, prefabs and `ProjectSettings/*.asset` are YAML. Editing them while the editor holds
 them open means the editor wins on next save. Script and Markdown edits are safe with Unity
@@ -71,7 +101,7 @@ ls Temp/UnityLockfile
 Empty output from the first and a missing lockfile from the second both mean it is safe.
 Commit before starting, so every step below is revertible.
 
-### 2. Upgrade to Unity 6000.5.9f1
+### 2. Upgrade to Unity 6000.5.9f1 ✅
 
 Open in 6.5 and let it convert. All of this is expected in `git status`:
 
@@ -96,7 +126,7 @@ grep -n "m_CustomRenderPipeline" ProjectSettings/GraphicsSettings.asset
 > the upgrade and confirm the fruit still stack, settle and merge the way they did — this
 > is the project most likely to feel different afterwards.
 
-### 3. Decide on URP deliberately
+### 3. Decide on URP deliberately ✅ — URP taken, 2D renderer
 
 Two traps hit Peggle:
 
@@ -120,7 +150,12 @@ particle material, it is exactly what goes magenta.
 Staying on Built-In is a legitimate answer. Only take URP if you want 2D lights — and if
 you do, use the 2D renderer.
 
-### 4. Rewrite the input code
+**Outcome here:** URP was taken and the trap was avoided. `Assets/_Project/Render/` holds a
+URP asset whose renderer is `Renderer2DData`, and `GraphicsSettings.asset` points at it
+(guid `92d052426988a6a48abe47ed1106d2e5`). The magenta-material grep found nothing — the
+scene has no particle systems yet, so there was nothing to break.
+
+### 4. Rewrite the input code ✅
 
 The pattern Peggle settled on: one serialized `InputAction` field per verb. Teaches actions
 and bindings, stays readable, needs no `.inputactions` asset or `PlayerInput` component.
@@ -173,7 +208,7 @@ the Inspector, the shape is:
 block under `m_SingletonActionBindings` for a second device — one action with two bindings
 is what lets a single line of code serve both mouse and keyboard.
 
-### 5. Switch Active Input Handling to New
+### 5. Switch Active Input Handling to New ✅
 
 Verify nothing legacy survives **first**:
 
@@ -252,11 +287,86 @@ Independent of the migration. Every item below was actually wrong in Peggle.
 
 ---
 
+## What the audit turned up
+
+Run against this project on 26 Aug 2026, after the migration.
+
+| Checklist item | Result |
+|---|---|
+| Debug values left in the scene | **N/A** — scene holds only a camera |
+| Components on instance instead of prefab | **Clean** — no `m_AddedComponents:` in the scene |
+| Orphaned property overrides | **Clean** — no prefabs exist yet |
+| Public methods nothing calls | **5 found** — see below |
+| Docs describing files that do not exist | **Several found and fixed** — see below |
+| Meta files committed | **Clean** — every asset and Markdown file has one |
+| Build Settings | **Correct** — survived the 6.5 conversion |
+
+### Deprecated API caught by the compiler
+
+`MergeObject.cs` used `FindFirstObjectByType<GameManager>()`, which Unity 6.5 deprecates
+(CS0618 — it relies on instance-ID ordering). Changed to `FindAnyObjectByType<GameManager>()`.
+Note that `IMPLEMENTATION_SUMMARY.md` had specifically praised the old call as "the Unity 6
+API, not the deprecated FindObjectOfType" — a doc that was correct when written and went
+stale under the upgrade. Exactly the failure mode the audit checklist is looking for.
+
+### Five public methods with no callers
+
+All five are `GameManager` query methods: `CountObjectsOfTier`, `GetTotalObjectPoints`,
+`GetHighestTier`, `GetHighestObjectName`, `GetActiveObjectCount`.
+
+**This is not the Peggle bug.** In Peggle a dead public method meant the game could not be
+won. Here they are a deliberate Session 3 teaching exercise, and two of them are TODO stubs
+students fill in. But the pedagogical smell is real: a student completes
+`GetTotalObjectPoints()` and has **no way to see whether it works**, because nothing calls it
+and there is no UI. Worth either calling them from a debug `Debug.Log`, or pointing the
+Session 6 "Score UI" feature at them. `README.md` now says so.
+
+### Docs that had drifted
+
+- Unity version stated as `6000.0.63f1` in two docs
+- Input System stated as `1.16.0`; render pipeline stated as "Built-in 2D"
+- Repository path given as `MergeTemplate` (it is `WatermelonTemplate`)
+- Script count 7 (actually 8 — `BuildInfo.cs`), line count and comment density both stale
+- `README.md` claimed the game "works out of the box" without mentioning that
+  `SETUP_INSTRUCTIONS.md` is a required 30-40 minute prerequisite
+- No doc anywhere mentioned Input System usage, despite it being the thing most likely to
+  block a student
+
+`Assets/_Project/Input/InputSystem_Actions.inputactions` exists but is Unity's stock
+first-person sample (Move / Look / Jump / Sprint). **No script references it** — but it is not
+fully orphaned either: `EditorBuildSettings.asset` registers it as the project-wide input
+actions asset (`com.unity.input.settings.actions`, guid `3590b91b...`). Nothing reads that, so
+it is harmless. Deleting the file means clearing that reference under
+**Edit > Project Settings > Input System Package** first, or a dangling guid is left behind.
+Now documented as such rather than as "unused".
+
+---
+
+## Still open
+
+1. **Gameplay is unverified.** Nothing has been play-tested, because the scene is not built.
+   The 2D-physics warning in step 2 still stands: merge, stack and settle behaviour under
+   Unity 6.5's `physicscore2d` module needs a full session of play once setup is done.
+2. ~~**The scene is a partial setup.**~~ **Resolved 26 Aug.** The stray GameObject literally
+   named `GameObject`, carrying a lone `GameManager`, has been renamed to **Managers** and given
+   the missing `MergeObjectFactory` component — completing step 4 of `SETUP_INSTRUCTIONS.md`.
+   Authored directly in the scene YAML with Unity closed, then verified by opening the scene
+   headless: two roots (`Main Camera`, `Managers`), no missing scripts, factory reporting 5
+   empty prefab slots. That removes the duplicate-GameManager trap, since the guide now tells
+   the reader to verify the existing object rather than create a second one.
+
+   Steps 2 and 4 of the setup guide are therefore pre-done. **Steps 3, 5, 6, 7-10 and 11
+   (walls, sprite, three prefabs, DropController, wiring) are still the instructor's job.**
+3. **EventSystem.** Still nothing to migrate, and still a trap the first time a Canvas is
+   added. `README.md`'s Score UI feature entry now carries the warning.
+
+---
+
 ## Status
 
 The Peggle migration these steps describe was **tested in the editor** — it compiled, ran,
 and played, hand-authored YAML included. This is a path that has been walked end to end.
 
-Nothing about this project's actual gameplay has been reviewed — only versions, packages,
-render pipeline, input call sites, scenes and build settings. The merge logic, tier
-progression and physics tuning are all unexamined.
+This project now **compiles clean** under Unity 6.5 + URP 2D + New-only input, verified
+headless. Its merge logic, tier progression and physics tuning remain unexamined at runtime,
+for the reason in "Still open" above.

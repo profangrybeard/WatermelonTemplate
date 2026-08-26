@@ -8,9 +8,40 @@ The merge system, physics, and game loop are **pre-built**. Students focus exclu
 
 ---
 
+## Before You Start (Instructors)
+
+**The scene is not built yet.** A fresh clone contains the scripts, a configured camera and a
+**Managers** GameObject (GameManager + MergeObjectFactory) -- but no walls, no sprites, no
+prefabs and no DropController. Pressing Play shows an empty screen until you work through
+[Docs/SETUP_INSTRUCTIONS.md](Docs/SETUP_INSTRUCTIONS.md) (25-35 minutes, one time). Everything
+below assumes that setup is done and committed, which is the state students receive.
+
+### Project configuration
+
+| | |
+|---|---|
+| Unity | `6000.5.9f1` |
+| Render pipeline | URP 17.5.0, **2D renderer** (`Renderer2DData`) |
+| Input | Input System 1.20.0 -- **Active Input Handling is New-only** |
+
+**Why New-only:** legacy `Input.GetKeyDown` / `Input.mousePosition` will not compile. Most
+Unity tutorials online still use them, so pasted code fails loudly at compile time instead of
+quietly doing nothing at runtime. Do not set this back to *Both* to make an error go away --
+see [Docs/TROUBLESHOOTING.md](Docs/TROUBLESHOOTING.md) issues 15 and 16 for the fix and the
+legacy-to-new translation table.
+
+Input is bound through `[SerializeField] private InputAction` fields on `DropController`
+(Aim, Drop) and `GameManager` (Restart). Default bindings are set in code, so the actions are
+already filled in when you add the component -- there is no `.inputactions` asset and no
+`PlayerInput` component to wire up.
+
+---
+
 ## The MVP Approach
 
-The game **works out of the box** with 3 merge objects (TierZero, TierOne, TierTwo). Students open the project, press Play, and immediately see dropping, stacking, and merging in action. From Session 2 onward, students create their own merge object classes from scratch to extend the merge chain. Each new class they complete is immediately playable -- they never wait for "enough code" before testing.
+Once the instructor has completed the one-time scene setup, the game **works out of the box**
+for students with 3 merge objects (TierZero, TierOne, TierTwo). Students open the project,
+press Play, and immediately see dropping, stacking, and merging in action. From Session 2 onward, students create their own merge object classes from scratch to extend the merge chain. Each new class they complete is immediately playable -- they never wait for "enough code" before testing.
 
 This follows the same philosophy as the SlitherTemplate: **give students a working game on day one, then let them make it their own.**
 
@@ -27,7 +58,7 @@ This follows the same philosophy as the SlitherTemplate: **give students a worki
 | Student classes | **Student-Created** | Sessions 2-3 -- students create their own derived classes from scratch |
 | `GameManager.cs` | **Provided** | Merge execution, object tracking, game over detection |
 | `MergeObjectFactory.cs` | **Provided** | Prefab array, polymorphic `CreateObject()` method |
-| `DropController.cs` | **Provided** | Mouse input, aiming, dropping with cooldown |
+| `DropController.cs` | **Provided** | Aim/Drop `InputAction`s, aiming, dropping with cooldown |
 
 ---
 
@@ -239,10 +270,21 @@ Students choose from this menu based on interest and skill level. These are sugg
 
 ### Beginner Features
 - **Custom object colors** -- Change the RGBA values in your classes to your own palette
-- **Score UI** -- Add a Canvas with Text to display the score on screen instead of just the Console
+- **Score UI** -- Add a Canvas with Text to display the score on screen instead of just the Console.
+  The scene has no Canvas yet, so this adds the first one. When Unity creates the EventSystem,
+  confirm it uses **InputSystemUIInputModule**, not the legacy `StandaloneInputModule` -- under
+  New-only input the legacy module leaves the UI completely unresponsive. Unity normally picks
+  the right one automatically; check the EventSystem in the Inspector if buttons do nothing.
+  A score UI is also the natural place to surface `GameManager`'s query methods
+  (`GetTotalObjectPoints()`, `GetHighestObjectName()`, `CountObjectsOfTier()`), which are
+  written and tested in Session 3 but which nothing currently calls
 - **Adjusted drop speed** -- Modify `dropCooldown` in the DropController Inspector
 - **Container size tweaks** -- Adjust wall positions and collider sizes in the scene
 - **Custom debug messages** -- Add personality to each object's `OnMerge()` log messages
+- **Rebind the controls** -- Add a second binding to the Drop action in the Inspector (e.g.
+  `<Keyboard>/space` alongside `<Mouse>/leftButton`) and watch the same line of code respond to
+  both, with no script change. One action, many devices -- the same "write once, works for all
+  types" idea as polymorphism, applied to hardware
 
 ### Intermediate Features
 - **Background color change on merge** -- `Camera.main.backgroundColor = objectColor;` in `OnMerge()`

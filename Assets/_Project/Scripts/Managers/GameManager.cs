@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -36,6 +37,21 @@ public class GameManager : MonoBehaviour
 
     [Tooltip("Seconds an object must be above the line before game over triggers")]
     public float gameOverDelay = 2f;
+
+
+    // ============================================
+    // INPUT ACTIONS
+    // ============================================
+
+    // TEACHING: One InputAction per verb. See DropController.cs for the full
+    // explanation. The default binding is set here in code so a freshly added
+    // GameManager works without touching the Inspector.
+
+    [Header("Input")]
+    [Tooltip("Button action that restarts the game after game over")]
+    [SerializeField]
+    private InputAction restartAction =
+        new InputAction("Restart", InputActionType.Button, "<Keyboard>/r");
 
 
     // ============================================
@@ -67,6 +83,19 @@ public class GameManager : MonoBehaviour
     // UNITY LIFECYCLE
     // ============================================
 
+    // TEACHING: An action that is never enabled fails silently -- no exception,
+    // no Console warning. Enable in OnEnable, disable in OnDisable.
+
+    void OnEnable()
+    {
+        restartAction.Enable();
+    }
+
+    void OnDisable()
+    {
+        restartAction.Disable();
+    }
+
     void Start()
     {
         Debug.Log($"Merge Template {BuildInfo.Version}");
@@ -77,7 +106,7 @@ public class GameManager : MonoBehaviour
         if (isGameOver)
         {
             // Press R to restart after game over
-            if (Input.GetKeyDown(KeyCode.R))
+            if (restartAction.WasPressedThisFrame())
             {
                 RestartGame();
             }

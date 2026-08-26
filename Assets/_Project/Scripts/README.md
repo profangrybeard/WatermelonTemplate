@@ -25,7 +25,7 @@ This template is designed as an **MVP with examples** — students study 3 worki
 | Merge detection | `OnCollisionEnter2D()` in MergeObject.cs | — |
 | Merge effects | Default `OnMerge()` in MergeObject.cs | Override `OnMerge()` per class (Session 4) |
 | Query methods | `CountObjectsOfTier()`, `GetHighestTier()` | `GetTotalObjectPoints()`, `GetHighestObjectName()` (TODO stubs) |
-| Drop controller | `DropController.cs` | — |
+| Drop controller | `DropController.cs` (Aim/Drop `InputAction`s) | — |
 | Game manager | `GameManager.cs` with `List<MergeObject>` | — |
 | Factory | `MergeObjectFactory.cs` with `CreateObject()` | — |
 
@@ -242,6 +242,21 @@ protected override void InitializeMergeObjectProperties()
 ### "Wrong size or color"
 - Verify objectSize and objectColor values in derived Awake()
 - Make sure values are set before calling base.Awake()
+
+### "error CS0103: The name 'Input' does not exist in the current context"
+- Working as intended. This project is **New Input System only** — legacy `Input.GetKeyDown`
+  and `Input.mousePosition` do not compile
+- Use an `InputAction` instead; copy the pattern from `DropController.cs`
+- Do NOT switch Active Input Handling back to *Both* to silence it
+- Full translation table: `Docs/TROUBLESHOOTING.md` issue 15
+
+### "My input does nothing, but there's no error"
+- An `InputAction` that was never enabled fails **silently** — no exception, no warning
+- Every action needs `Enable()` in `OnEnable()` and `Disable()` in `OnDisable()`
+- Use `OnEnable`, not `Start` — `Start` runs once ever, so a re-enabled object comes back deaf
+- Check the action actually has a binding in the Inspector (an empty binding list listens to nothing)
+- Live view of every enabled action: **Window > Analysis > Input Debugger**
+- Details: `Docs/TROUBLESHOOTING.md` issue 16
 
 ---
 

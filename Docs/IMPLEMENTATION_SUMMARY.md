@@ -24,14 +24,16 @@ Both templates follow the same pedagogical approach called **"MVP with Scaffolds
 
 ## Project Statistics
 
-- **Total C# Scripts:** 7 files (1 base class + 3 given derived + 3 system scripts)
-- **Total Lines of Code:** ~1,245 lines (including extensive teaching comments)
-- **Comment Density:** ~44% (matches SlitherTemplate)
-- **Documentation Files:** 6 markdown files (5 in Docs/ folder + 1 inside Assets/_Project/Scripts/)
-- **Unity Version:** 6000.0.63f1
-- **Render Pipeline:** Built-in 2D
-- **Packages:** Input System 1.16.0 (same as SlitherTemplate)
-- **Repository Location:** `C:\SCAD\Projects\MergeTemplate`
+- **Total C# Scripts:** 8 files (1 base class + 3 given derived + 3 system scripts + `BuildInfo.cs`)
+- **Total Lines of Code:** ~1,335 lines (including extensive teaching comments)
+- **Comment Density:** ~49%
+- **Documentation Files:** 8 markdown files (6 in `Docs/` + `README.md` + `MIGRATION.md` at root),
+  plus 1 inside `Assets/_Project/Scripts/`
+- **Unity Version:** 6000.5.9f1
+- **Render Pipeline:** URP 17.5.0 with the **2D renderer** (`Renderer2DData`)
+- **Packages:** Input System 1.20.0
+- **Active Input Handling:** **Input System Package (New)** only -- legacy `Input.*` will not compile
+- **Repository Location:** `C:\SCAD\Projects\WatermelonTemplate`
 - **Git State:** main branch. Scripts and docs committed.
 
 ---
@@ -105,10 +107,13 @@ MergeTemplate/
 │       │   └── SFX/
 │       ├── Fonts/
 │       ├── Input/
-│       │   └── InputSystem_Actions.inputactions
+│       │   └── InputSystem_Actions.inputactions   (Unity's stock sample -- UNUSED, see note)
 │       ├── Materials/
 │       ├── Prefabs/
 │       │   └── MergeObjects/             (created during setup -- see SETUP_INSTRUCTIONS.md)
+│       ├── Render/
+│       │   ├── New Universal Render Pipeline Asset.asset
+│       │   └── New Universal Render Pipeline Asset_Renderer.asset   (Renderer2DData)
 │       ├── Scenes/
 │       │   └── GameScene.unity           (needs manual setup)
 │       ├── Scripts/
@@ -131,7 +136,20 @@ MergeTemplate/
 │   ├── TROUBLESHOOTING.md               Common student issues and fixes
 │   └── IMPLEMENTATION_SUMMARY.md        (this file) Full project context
 └── README.md                            Main teaching guide
+    MIGRATION.md                          Unity 6.5 / URP / Input System migration record
 ```
+
+> **`InputSystem_Actions.inputactions` is not used by this project's code.** It is the stock
+> asset Unity generates for a new project (Move/Look/Attack/Jump/Sprint -- a first-person
+> template). This game binds input through `[SerializeField] private InputAction` fields on
+> `DropController` and `GameManager` instead, so no `.inputactions` asset and no `PlayerInput`
+> component are involved.
+>
+> It is not entirely orphaned, though: `ProjectSettings/EditorBuildSettings.asset` registers it
+> as the **project-wide input actions asset** (`com.unity.input.settings.actions`). Nothing
+> reads that, so it is harmless. If you want it gone, clear the reference first under
+> **Edit > Project Settings > Input System Package** and then delete the file -- otherwise you
+> leave a dangling guid behind.
 
 ---
 
@@ -194,7 +212,9 @@ public void SetPhysicsEnabled(bool enabled)   // sets rb.simulated
 public void SetKinematic(bool isKinematic)     // toggles Kinematic/Dynamic, zeros velocity
 ```
 
-**Key API note:** Uses `FindFirstObjectByType<GameManager>()` (Unity 6 API, not the deprecated `FindObjectOfType`).
+**Key API note:** Uses `FindAnyObjectByType<GameManager>()`. Unity 6.5 deprecated *both* the old
+`FindObjectOfType` and `FindFirstObjectByType` (the latter relies on instance-ID ordering).
+`FindAnyObjectByType` is the current call and compiles warning-free.
 
 ### TierZero.cs -- Complete Reference
 
@@ -384,7 +404,7 @@ See `Docs/SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide
 | Folder convention | `AI/`, `Food/`, `Player/`, `Managers/`, `Utils/` | `MergeObjects/`, `Managers/`, `Player/` |
 | Root docs | `README.md`, `SETUP_INSTRUCTIONS.md`, `IMPLEMENTATION_SUMMARY.md`, `QUICKSTART_CHECKLIST.md` | `README.md` at root + 5 docs in `Docs/` folder |
 | Scripts README | Yes (`Assets/_Project/Scripts/README.md`) | Yes (`Assets/_Project/Scripts/README.md`) |
-| Unity version | 6000.0.63f1 | 6000.0.63f1 |
+| Unity version | 6000.0.63f1 | 6000.5.9f1 |
 
 ---
 

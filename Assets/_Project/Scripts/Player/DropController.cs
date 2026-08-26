@@ -8,6 +8,7 @@
  *
  * This script handles the player's ability to aim and drop merge objects:
  * - Move mouse left/right to aim, click to drop
+ * - Input uses the Input System package (InputAction), not the legacy Input class
  * - Cooldown between drops prevents spam
  * - Creates random low-tier objects via MergeObjectFactory
  *
@@ -18,6 +19,7 @@
  */
 
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DropController : MonoBehaviour
 {
@@ -54,6 +56,35 @@ public class DropController : MonoBehaviour
 
 
     // ============================================
+    // INPUT ACTIONS
+    // ============================================
+
+    // TEACHING: INPUT ACTIONS
+    // An InputAction is a named verb ("Aim", "Drop") bound to a physical control.
+    // The code below never mentions a mouse -- it asks the ACTION for its value.
+    // Rebind the action in the Inspector and the same code drives a gamepad instead.
+    //
+    // These fields are [SerializeField] private: visible and editable in the
+    // Inspector, but not reachable from other scripts. That is the encapsulation
+    // idea from Session 1 applied to a real field.
+    //
+    // The default bindings are set here in code, so a freshly added DropController
+    // component works immediately without clicking anything in the Inspector.
+
+    [Header("Input")]
+    [Tooltip("Value action (Vector2) that reads the pointer position on screen")]
+    [SerializeField]
+    private InputAction aimAction =
+        new InputAction("Aim", InputActionType.Value, "<Mouse>/position",
+                        expectedControlType: "Vector2");
+
+    [Tooltip("Button action that drops the current object")]
+    [SerializeField]
+    private InputAction dropAction =
+        new InputAction("Drop", InputActionType.Button, "<Mouse>/leftButton");
+
+
+    // ============================================
     // PRIVATE STATE
     // ============================================
 
@@ -76,6 +107,23 @@ public class DropController : MonoBehaviour
     // ============================================
     // UNITY LIFECYCLE
     // ============================================
+
+    // TEACHING: AN ACTION THAT IS NEVER ENABLED FAILS SILENTLY.
+    // No exception, no Console warning -- input simply does nothing.
+    // Use OnEnable/OnDisable, NOT Start: Start runs once ever, so an object that
+    // is disabled and re-enabled would come back deaf.
+
+    void OnEnable()
+    {
+        aimAction.Enable();
+        dropAction.Enable();
+    }
+
+    void OnDisable()
+    {
+        aimAction.Disable();
+        dropAction.Disable();
+    }
 
     void Start()
     {
@@ -115,12 +163,14 @@ public class DropController : MonoBehaviour
     // ============================================
 
     /// <summary>
-    /// Reads mouse input to set the aim position.
+    /// Reads the aim action to set the aim position.
     /// </summary>
     void HandleInput()
     {
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        aimX = Mathf.Clamp(mouseWorldPos.x, minX, maxX);
+        // ReadValue<Vector2>() returns the pointer position in SCREEN pixels.
+        Vector2 pointerScreenPos = aimAction.ReadValue<Vector2>();
+        Vector3 pointerWorldPos = Camera.main.ScreenToWorldPoint(pointerScreenPos);
+        aimX = Mathf.Clamp(pointerWorldPos.x, minX, maxX);
     }
 
     /// <summary>
@@ -128,7 +178,8 @@ public class DropController : MonoBehaviour
     /// </summary>
     bool ShouldDrop()
     {
-        return Input.GetMouseButtonDown(0);
+        // WasPressedThisFrame() is the InputAction equivalent of GetMouseButtonDown.
+        return dropAction.WasPressedThisFrame();
     }
 
 

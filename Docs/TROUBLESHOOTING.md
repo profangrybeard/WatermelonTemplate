@@ -20,6 +20,8 @@
 12. [Prefab Not Working After Adding Script](#12-prefab-not-working-after-adding-script)
 13. [OnMerge Override Not Running](#13-onmerge-override-not-running-session-4)
 14. [Multiple Objects Spawning on Merge](#14-multiple-objects-spawning-on-merge-double-merge-bug)
+15. [Compiler Error: The name 'Input' does not exist](#15-compiler-error-the-name-input-does-not-exist)
+16. [Input Does Nothing and There Is No Error](#16-input-does-nothing-and-there-is-no-error)
 
 ---
 ## 1. Objects Do Not Merge (Same Type)
@@ -428,6 +430,120 @@ If a prefab accidentally has two MergeObject-derived scripts attached (e.g., bot
 
 ### Fix C
 Select the prefab and check the Inspector. Each object prefab should have exactly ONE script that inherits from MergeObject. Remove any duplicate or incorrect scripts.
+
+---
+
+## 15. Compiler Error: The name 'Input' does not exist
+
+### Symptom
+Copying a snippet from an online tutorial produces a red error in the Console and nothing runs:
+
+```
+error CS0103: The name 'Input' does not exist in the current context
+```
+
+Or, on `KeyCode`:
+
+```
+error CS0103: The name 'KeyCode' does not exist in the current context
+```
+
+### Cause
+**This is working as intended, not a broken project.** This project's Active Input Handling
+is set to **Input System Package (New)** only. The legacy `UnityEngine.Input` class
+(`Input.GetKeyDown`, `Input.mousePosition`, `Input.GetMouseButtonDown`) is switched off at
+compile time, so old tutorial code fails loudly instead of quietly doing nothing.
+
+Most Unity tutorials online still use the legacy class. Students will hit this.
+
+### Fix
+Use an `InputAction` instead. The pattern is already in `DropController.cs` and
+`GameManager.cs` -- copy it:
+
+```csharp
+using UnityEngine.InputSystem;
+
+[SerializeField]
+private InputAction jumpAction =
+    new InputAction("Jump", InputActionType.Button, "<Keyboard>/space");
+
+void OnEnable()  { jumpAction.Enable(); }
+void OnDisable() { jumpAction.Disable(); }
+
+void Update()
+{
+    if (jumpAction.WasPressedThisFrame()) { /* ... */ }
+}
+```
+
+Translation table for the calls students will most often paste in:
+
+| Legacy call | Input System equivalent |
+|---|---|
+| `Input.GetKeyDown(KeyCode.R)` | `action.WasPressedThisFrame()` |
+| `Input.GetKey(KeyCode.R)` | `action.IsPressed()` |
+| `Input.GetKeyUp(KeyCode.R)` | `action.WasReleasedThisFrame()` |
+| `Input.GetMouseButtonDown(0)` | `action.WasPressedThisFrame()` (bind `<Mouse>/leftButton`) |
+| `Input.mousePosition` | `action.ReadValue<Vector2>()` (bind `<Mouse>/position`, type Value) |
+| `Input.GetAxis("Horizontal")` | `action.ReadValue<Vector2>().x` (Value action, 2D Vector composite) |
+
+### Do Not "Fix" This by Switching Back to Both
+Setting **Edit > Project Settings > Player > Active Input Handling** back to *Both* makes the
+error disappear and is the wrong move. The whole point of New-only is that stale tutorial
+code fails at compile time rather than silently doing nothing at runtime (see issue 16).
+
+---
+
+## 16. Input Does Nothing and There Is No Error
+
+### Symptom
+The project compiles. No red text in the Console. Pressing the key or clicking the mouse
+simply does nothing. This is the single most confusing failure in the Input System, because
+there is no evidence anything is wrong.
+
+### Cause A: The action was never enabled
+An `InputAction` that is not enabled returns default values forever -- no exception, no
+warning. This is by far the most common cause.
+
+### Fix A
+Every action needs `Enable()`. Check that the script has:
+
+```csharp
+void OnEnable()  { myAction.Enable(); }
+void OnDisable() { myAction.Disable(); }
+```
+
+Use `OnEnable`/`OnDisable`, **not `Start`**. `Start` runs once ever, so a GameObject that is
+disabled and re-enabled would come back deaf.
+
+### Cause B: The action has no binding
+An action with an empty binding list is enabled but listens to nothing. This happens when a
+field is added to a script without a default binding, or when a student clears the binding
+in the Inspector.
+
+### Fix B
+Select the component and expand the action in the Inspector. There must be at least one
+binding under it (e.g. `<Mouse>/leftButton`). If the list is empty, click **+** and add one.
+
+In this project the defaults are set in code, so a freshly added component already has:
+
+| Script | Action | Type | Binding |
+|---|---|---|---|
+| `DropController` | Aim | Value (Vector2) | `<Mouse>/position` |
+| `DropController` | Drop | Button | `<Mouse>/leftButton` |
+| `GameManager` | Restart | Button | `<Keyboard>/r` |
+
+### Cause C: Reading the wrong value type
+`ReadValue<Vector2>()` on a Button action, or `WasPressedThisFrame()` on a Value action,
+returns nothing useful. Aim is a **Value** action; Drop and Restart are **Button** actions.
+
+### Fix C
+Match the read call to the action type: `ReadValue<T>()` for Value, `WasPressedThisFrame()`
+/ `IsPressed()` for Button.
+
+### Debugging Tip
+**Window > Analysis > Input Debugger** shows every device and every enabled action live.
+If an action does not appear there while the game is running, it was never enabled.
 
 ---
 

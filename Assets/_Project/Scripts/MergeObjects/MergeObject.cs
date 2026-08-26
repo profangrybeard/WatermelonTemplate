@@ -317,7 +317,7 @@ public class MergeObject : MonoBehaviour
 
                 // Delegate to GameManager to handle the actual merge:
                 // destroy both objects and spawn the next tier
-                GameManager gm = FindFirstObjectByType<GameManager>();
+                GameManager gm = FindAnyObjectByType<GameManager>();
                 if (gm != null)
                 {
                     gm.MergeObjects(this, otherObject);

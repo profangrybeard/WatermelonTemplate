@@ -2,9 +2,34 @@
 
 ## Starting Point
 
-You have the scripts and nothing else. This guide walks you through setting up the Unity scene from scratch so the game is fully playable with 3 object types (TierZero, TierOne, TierTwo) before students touch any code.
+You have the scripts, a configured camera, and a **Managers** GameObject. This guide walks you
+through building out the rest of the Unity scene so the game is fully playable with 3 object
+types (TierZero, TierOne, TierTwo) before students touch any code.
 
-**Time estimate:** 30-40 minutes
+**Time estimate:** 25-35 minutes
+
+> **This setup is required before the game will run.** `GameScene.unity` ships with only a
+> camera (Step 2, done) and a Managers object (Step 4, done) -- no walls, no sprites, no
+> prefabs, no DropController. Pressing Play on a fresh clone shows an empty screen. That is
+> expected; work through the steps below first.
+
+**Already done -- verify only:** Step 2 (camera) and Step 4 (Managers object).
+**Still to do:** Steps 3, 5, 6, 7-10 (prefabs) and Step 11 (wiring).
+
+### Project configuration (already done -- verify only)
+
+| Setting | Value | Where |
+|---|---|---|
+| Unity version | `6000.5.9f1` | `ProjectSettings/ProjectVersion.txt` |
+| Render pipeline | URP 17.5.0, **2D renderer** (`Renderer2DData`) | `Assets/_Project/Render/` |
+| Active Input Handling | **Input System Package (New)** only | Player settings |
+| Input System | 1.20.0 | `Packages/manifest.json` |
+
+**Active Input Handling is New-only on purpose.** Legacy `Input.GetKeyDown` /
+`Input.mousePosition` will not compile. Input is bound through `InputAction` fields on
+`DropController` and `GameManager` -- there is no `.inputactions` asset and no `PlayerInput`
+component to wire up. If a student pastes tutorial code that fails to compile, that is the
+setting doing its job; see `Docs/TROUBLESHOOTING.md` issues 15 and 16.
 
 ---
 
@@ -12,7 +37,7 @@ You have the scripts and nothing else. This guide walks you through setting up t
 
 1. Open Unity Hub
 2. Click **Open** and navigate to the project folder
-3. Unity 6000.0.63f1 should be selected (or your matching version)
+3. Unity 6000.5.9f1 should be selected (or your matching version)
 4. Open the project — it will compile the scripts automatically
 5. Open `Assets/_Project/Scenes/GameScene.unity`
 
@@ -61,7 +86,28 @@ Press **Play** briefly to verify objects do not fall through the floor, then **S
 
 ---
 
-## Step 4: Create the Managers GameObject
+## Step 4: The Managers GameObject — already in the scene
+
+**This step is done.** `GameScene.unity` ships with a **Managers** GameObject at (0, 0, 0)
+carrying both **GameManager** and **MergeObjectFactory**. Select it in the Hierarchy and
+confirm:
+
+| Component | Expected state |
+|---|---|
+| GameManager | Merge Object Factory: `None`, Drop Controller: `None` (wired in Step 11) |
+| GameManager → Input | *Restart* action, Button, bound to `<Keyboard>/r` |
+| MergeObjectFactory | Object Prefabs: 5 empty slots |
+
+The references are deliberately empty — Step 11 wires them once everything exists. The
+Restart binding comes from the script, so there is nothing to configure there either.
+
+> **Do not add a second GameManager.** If you create another one by hand, `MergeObject` looks
+> the manager up with `FindAnyObjectByType<GameManager>()` and may find the wrong one — merges
+> would then score against a manager that nothing else references, and the score you see would
+> never change.
+
+<details>
+<summary>If the Managers object is missing (someone deleted it), rebuild it</summary>
 
 1. In the Hierarchy, right-click → **Create Empty**
 2. Rename it to **Managers**
@@ -69,7 +115,9 @@ Press **Play** briefly to verify objects do not fall through the floor, then **S
 4. Click **Add Component** → search for **GameManager** → add it
 5. Click **Add Component** → search for **MergeObjectFactory** → add it
 
-Leave the Inspector references empty for now — we'll wire them up after creating everything.
+Leave the object/factory references empty.
+
+</details>
 
 ---
 
@@ -85,6 +133,13 @@ Leave the Inspector references empty for now — we'll wire them up after creati
    - Min X: -2.5
    - Max X: 2.5
    - Max Drop Tier: **2** (default — only TierZero/TierOne/TierTwo exist at start)
+6. Under **Input**, confirm two actions are already present:
+   - **Aim** — Value / Vector2, bound to `<Mouse>/position`
+   - **Drop** — Button, bound to `<Mouse>/leftButton`
+
+   These defaults come from the script, so they are filled in the moment you add the
+   component. If either binding list is empty, input will silently do nothing — see
+   `Docs/TROUBLESHOOTING.md` issue 16.
 
 ---
 
@@ -265,8 +320,11 @@ Assets/
       SFX/
     Fonts/
     Input/
-      InputSystem_Actions.inputactions
+      InputSystem_Actions.inputactions   (Unity's stock sample — no script uses it)
     Materials/
+    Render/
+      New Universal Render Pipeline Asset.asset
+      New Universal Render Pipeline Asset_Renderer.asset
     Prefabs/
       MergeObjects/
         TierZero.prefab
@@ -291,8 +349,9 @@ Before distributing to students:
 1. **Verify Max Drop Tier** — DropController should have Max Drop Tier = 2 (only 3 starter objects)
 2. **Verify MergeObjectFactory** — Only slots 0-2 should have prefabs assigned
 3. **Verify the game plays correctly** — Drop, merge, score in Console, game over all work
-4. **Save the scene** (Ctrl+S)
-5. Commit to git
+4. **Verify input** — mouse aims, left click drops, and `R` restarts after game over
+5. **Save the scene** (Ctrl+S)
+6. Commit to git
 
 Students will increase Max Drop Tier as they add more objects.
 
