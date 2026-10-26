@@ -98,7 +98,7 @@ This follows the same philosophy as the SlitherTemplate: **give students a worki
 - Discuss: What does `virtual` mean? What does `override` mean?
 
 **Instructor Notes:**
-- Walk through `MergeObject.cs` top to bottom, pausing at each TEACHING comment block
+- Walk through `MergeObject.cs` top to bottom. Comments are kept short so the code stays easy to find; the full explanations live in `Docs/INHERITANCE_CONCEPTS.md`
 - Draw the inheritance diagram on the board: `MonoBehaviour -> MergeObject -> TierZero/TierOne/TierTwo`
 - Let students open `GameManager.cs` and find `List<MergeObject>` -- explain that one list holds ALL object types
 - End with: "Next session you will create your own derived classes following the TierZero pattern"

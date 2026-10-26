@@ -325,7 +325,7 @@ automatically works with every specific type (`TierZero`, `TierOne`, `TierTwo`, 
 though each one behaves differently. You do not need to write "if this is a TierZero, do X;
 if this is a TierOne, do Y." You just call the method, and the right version runs.
 
-**Three concrete examples from the codebase:**
+**Five concrete examples from the codebase:**
 
 #### Example 1: Polymorphic Variable -- `MergeObject currentObject` in DropController.cs
 
@@ -393,9 +393,6 @@ public void MergeObjects(MergeObject objA, MergeObject objB)
     int points = objA.GetPointValue() + objB.GetPointValue();
     // TierZero returns 1, TierTwo returns 6, etc.
 
-    objA.OnMerge();    // Calls the derived version (custom effects in Session 4)
-    objB.OnMerge();    // Calls the derived version
-
     // Destroy both, spawn the next tier...
 }
 ```
@@ -403,6 +400,44 @@ public void MergeObjects(MergeObject objA, MergeObject objB)
 This ONE method handles every possible merge in the game. We never write
 `MergeTierZeros(TierZero a, TierZero b)` or `MergeTierOnes(TierOne a, TierOne b)`.
 The parameters are typed as `MergeObject`, so any two same-tier objects work.
+
+#### Example 4: Polymorphic Return Type -- `CreateObject(int tier)` in MergeObjectFactory.cs
+
+```csharp
+// In MergeObjectFactory.cs:
+public MergeObject CreateObject(int tier)
+{
+    GameObject obj = Instantiate(objectPrefabs[tier]);
+    return obj.GetComponent<MergeObject>();   // finds TierZero, TierOne, ... any derived script
+}
+
+// Caller:
+MergeObject obj = factory.CreateObject(0);   // actually a TierZero
+obj.GetObjectName();                         // "TierZero" -- TierZero's values come back
+```
+
+`GetComponent<MergeObject>()` finds any script that inherits from `MergeObject`, because a
+`TierZero` *is a* `MergeObject`. The array index is the tier, so there is no `switch` statement:
+add a class and a prefab, drop it in the next slot, and the factory can build it.
+
+#### Example 5: Logic Written Once -- `OnCollisionEnter2D` in MergeObject.cs
+
+The merge detection lives only in the base class, but every derived type runs it:
+
+```csharp
+MergeObject otherObject = other.gameObject.GetComponent<MergeObject>(); // any derived type
+if (GetTier() == otherObject.GetTier())        // each object's own tier
+{
+    if (GetMergeResultTier() != -1)            // final tier overrides this to -1
+    {
+        OnMerge();                             // each class's own effect (Session 4)
+        otherObject.OnMerge();
+        gm.MergeObjects(this, otherObject);
+    }
+}
+```
+
+The lines tagged `[POLY]` in the scripts are the calls where the derived version runs.
 
 ---
 

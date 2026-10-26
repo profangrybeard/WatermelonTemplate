@@ -25,8 +25,8 @@ Both templates follow the same pedagogical approach called **"MVP with Scaffolds
 ## Project Statistics
 
 - **Total C# Scripts:** 8 files (1 base class + 3 given derived + 3 system scripts + `BuildInfo.cs`)
-- **Total Lines of Code:** ~1,335 lines (including extensive teaching comments)
-- **Comment Density:** ~49%
+- **Total Lines of Code:** ~740 lines
+- **Comment Density:** ~12% full-line comments (Oct 2026 trim; explanations moved to `Docs/INHERITANCE_CONCEPTS.md`)
 - **Documentation Files:** 8 markdown files (6 in `Docs/` + `README.md` + `MIGRATION.md` at root),
   plus 1 inside `Assets/_Project/Scripts/`
 - **Unity Version:** 6000.6.0f1
@@ -329,15 +329,19 @@ Same pattern as TierZero with progressively fewer comments (by the third example
 
 ## Teaching Comment Conventions
 
-Matches SlitherTemplate exactly:
+Trimmed in Oct 2026. Last quarter students had trouble finding the code because long
+explanation blocks split it up (the SlitherTemplate style). The rule now: **the script shows
+the code, and the concepts doc explains it.**
 
-1. **File headers:** `/* GAME 220: Merge Template / Session X: Name / TEACHING FOCUS: bullets / STUDENT TASKS: bullets */`
-2. **TEACHING: prefix:** `// TEACHING: 'protected' means this class and its children can access this`
-3. **Boxed concept blocks:** `// =====================================================================` borders around major concept introductions (protected, virtual, polymorphism, etc.)
-4. **Section dividers:** `// ============================================` with section names
-5. **[POLY] markers:** Used in `OnCollisionEnter2D` to mark every line where polymorphism is in action
-6. **`[Header()]` attributes:** On all Inspector-exposed field groups
-7. **XML doc comments:** `/// <summary>` on all public methods
+1. **File headers:** 3-6 lines. What the file does, which concept it shows, which
+   `INHERITANCE_CONCEPTS.md` section explains it, and the session tasks.
+2. **One line per comment.** Comments are a short line above a method or at the end of a line.
+   There are no multi-line blocks inside a class.
+3. **Section dividers:** `// ---------- Name ----------` so students can scan for sections.
+4. **[POLY] markers:** trailing tags on every line where polymorphism is in action.
+5. **Session markers:** `// SESSION 4: ...` where students are expected to edit.
+6. **`[Header()]` / `[Tooltip()]`:** stay on every Inspector field, so the Inspector explains itself.
+7. **No XML `<summary>` blocks.** Method names carry the meaning, and a one-line comment covers the rest.
 
 ---
 
@@ -395,8 +399,8 @@ See `Docs/SETUP_INSTRUCTIONS.md` for the complete step-by-step Unity setup guide
 |--------|----------------|---------------|
 | Teaching concept | Arrays and Loops | Inheritance and Polymorphism |
 | Total scripts | 8 | 7 (base + 3 derived + 3 system) |
-| Total code lines | 1,375 | ~1,245 |
-| Comment density | ~44% | ~44% |
+| Total code lines | 1,375 | ~740 |
+| Comment density | ~44% | ~12% |
 | Doc files | 4 | 6 |
 | Given examples | N/A (TODOs are in system scripts) | 3 derived classes (TierZero, TierOne, TierTwo) |
 | Student work | 6 for-loop blocks across 3 files | Create derived classes from scratch |

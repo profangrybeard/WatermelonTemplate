@@ -1,16 +1,10 @@
 /*
- * GAME 220: Merge Template
- * Sessions 1-5: Game Manager
+ * GAME 220: Merge Template -- GameManager
+ * Tracks dropped objects, executes merges, keeps score, detects game over.
+ * Polymorphism: List<MergeObject> and MergeObjects(a, b) work with every derived type.
+ * Concepts: Docs/INHERITANCE_CONCEPTS.md -- Polymorphism, examples 2 and 3
  *
- * TEACHING FOCUS:
- * - POLYMORPHIC COLLECTION: List<MergeObject> holds ANY derived type
- * - POLYMORPHIC PARAMETERS: MergeObjects() accepts any two MergeObject types
- * - VIRTUAL METHOD DISPATCH: Calling methods on base references runs the derived version
- * - foreach LOOPS over polymorphic collections
- *
- * STUDENT TASKS:
- * - Session 1: Read and understand how List<MergeObject> works with different derived types
- * - Session 3: Complete the TODO query methods, examine polymorphism in foreach loops
+ * Session 3: complete the two TODO query methods at the bottom.
  */
 
 using System.Collections.Generic;
@@ -20,10 +14,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // ============================================
-    // INSPECTOR REFERENCES
-    // ============================================
-
     [Header("References")]
     [Tooltip("Drag the MergeObjectFactory component from the scene")]
     public MergeObjectFactory objectFactory;
@@ -38,54 +28,24 @@ public class GameManager : MonoBehaviour
     [Tooltip("Seconds an object must be above the line before game over triggers")]
     public float gameOverDelay = 2f;
 
-
-    // ============================================
-    // INPUT ACTIONS
-    // ============================================
-
-    // TEACHING: One InputAction per verb. See DropController.cs for the full
-    // explanation. The default binding is set here in code so a freshly added
-    // GameManager works without touching the Inspector.
-
+    // Input pattern explained in DropController.cs
     [Header("Input")]
     [Tooltip("Button action that restarts the game after game over")]
     [SerializeField]
     private InputAction restartAction =
         new InputAction("Restart", InputActionType.Button, "<Keyboard>/r");
 
-
-    // ============================================
-    // POLYMORPHIC COLLECTION
-    // ============================================
-
-    // TEACHING: List<MergeObject> can hold TierZero, TierOne, TierTwo --
-    // ANY class that inherits from MergeObject.
-    //
-    // When we loop through this list and call methods like GetTier() or
-    // GetPointValue(), the CORRECT DERIVED VERSION runs for each object.
-    // We never check "is this a TierZero?" -- polymorphism handles it.
-    //
-    // Write code for the BASE type, and it works with ALL derived types --
-    // even ones that don't exist yet!
+    // [POLY] One list holds TierZero, TierOne, TierTwo and any class you add
     private List<MergeObject> activeObjects = new List<MergeObject>();
-
-
-    // ============================================
-    // PRIVATE STATE
-    // ============================================
 
     private bool isGameOver = false;
     private float gameOverTimer = 0f;
     private int score = 0;
 
 
-    // ============================================
-    // UNITY LIFECYCLE
-    // ============================================
+    // ---------- Unity lifecycle ----------
 
-    // TEACHING: An action that is never enabled fails silently -- no exception,
-    // no Console warning. Enable in OnEnable, disable in OnDisable.
-
+    // An action that is never enabled does nothing, silently
     void OnEnable()
     {
         restartAction.Enable();
@@ -105,7 +65,6 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver)
         {
-            // Press R to restart after game over
             if (restartAction.WasPressedThisFrame())
             {
                 RestartGame();
@@ -117,15 +76,8 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // ============================================
-    // OBJECT TRACKING (Polymorphic Collection Management)
-    // ============================================
+    // ---------- Object tracking ----------
 
-    /// <summary>
-    /// Adds an object to the active objects list.
-    /// The parameter is typed as MergeObject (base class), so this method
-    /// accepts any derived type.
-    /// </summary>
     public void RegisterMergeObject(MergeObject obj)
     {
         if (obj != null && !activeObjects.Contains(obj))
@@ -134,9 +86,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Removes an object from the active objects list.
-    /// </summary>
     public void UnregisterMergeObject(MergeObject obj)
     {
         if (obj != null)
@@ -146,54 +95,36 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // ============================================
-    // MERGE EXECUTION
-    // ============================================
+    // ---------- Merge execution ----------
 
-    // TEACHING: POLYMORPHIC PARAMETERS
-    // MergeObjects takes two MergeObject parameters. The actual objects could be
-    // any combination: two TierZero, two TierTwo, two of your custom class, etc.
-    // Every method call uses virtual dispatch to run the derived version.
-    // This ONE method handles ALL merge combinations -- no type-checking needed.
-
-    /// <summary>
-    /// Executes a merge between two objects: destroys both and spawns the next tier.
-    /// Called by MergeObject.OnCollisionEnter2D() when two same-tier objects collide.
-    /// </summary>
+    // Called by MergeObject.OnCollisionEnter2D. [POLY] one method handles every pair of types.
     public void MergeObjects(MergeObject objA, MergeObject objB)
     {
         if (objA == null || objB == null) return;
 
-        // [POLY] GetMergeResultTier() calls the derived version.
-        // Most objects return tier + 1. The highest tier returns -1.
-        int nextTier = objA.GetMergeResultTier();
+        int nextTier = objA.GetMergeResultTier();                   // [POLY]
         if (nextTier == -1)
         {
             Debug.Log("Maximum tier reached! Two max-tier objects cannot merge.");
             return;
         }
 
-        // Calculate the spawn position (midpoint between the two objects)
         Vector3 mergePosition = (objA.transform.position + objB.transform.position) / 2f;
 
-        // [POLY] GetPointValue() calls the derived version for each object.
-        int points = objA.GetPointValue() + objB.GetPointValue();
+        int points = objA.GetPointValue() + objB.GetPointValue();   // [POLY]
         score += points;
         Debug.Log($"Merge! +{points} points (Total: {score})");
 
-        // Remove both objects from tracking and destroy them
         UnregisterMergeObject(objA);
         UnregisterMergeObject(objB);
         Destroy(objA.gameObject);
         Destroy(objB.gameObject);
 
-        // Create the merged object (next tier) at the midpoint
         if (objectFactory != null && objectFactory.HasPrefabForTier(nextTier))
         {
             MergeObject newObj = objectFactory.CreateObjectAtPosition(nextTier, mergePosition);
             if (newObj != null)
             {
-                // New object starts with full physics (falls naturally)
                 newObj.SetKinematic(false);
                 newObj.SetPhysicsEnabled(true);
                 RegisterMergeObject(newObj);
@@ -207,26 +138,17 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // ============================================
-    // GAME OVER DETECTION
-    // ============================================
+    // ---------- Game over ----------
 
-    /// <summary>
-    /// Checks if any object has been above the game over line for too long.
-    /// Uses a foreach loop over the polymorphic List<MergeObject>.
-    /// </summary>
     void CheckGameOverCondition()
     {
         bool objectAboveLine = false;
 
-        // TEACHING: foreach loop over a polymorphic collection.
-        // Each 'obj' in the loop could be any derived type.
-        // We don't need to know which type -- we just check the position.
         foreach (MergeObject obj in activeObjects)
         {
             if (obj != null && obj.transform.position.y > gameOverLineY)
             {
-                // Only count objects that have settled (not currently being dropped)
+                // Only count dropped objects (Dynamic), not the one being aimed
                 Rigidbody2D objRb = obj.GetComponent<Rigidbody2D>();
                 if (objRb != null && objRb.bodyType == RigidbodyType2D.Dynamic)
                 {
@@ -250,9 +172,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Triggers the game over state.
-    /// </summary>
     void GameOver()
     {
         isGameOver = true;
@@ -265,30 +184,15 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Game Over! Score: {score}. Press R to restart.");
     }
 
-    /// <summary>
-    /// Reloads the current scene to restart the game.
-    /// </summary>
     void RestartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
 
-    // ============================================
-    // POLYMORPHIC QUERY METHODS
-    // ============================================
+    // ---------- Query methods (Session 3) ----------
+    // Each obj is typed MergeObject; the derived GetTier()/GetPointValue() runs. [POLY]
 
-    // TEACHING: POLYMORPHISM IN FOREACH LOOPS
-    // Each 'obj' in the loop is typed as MergeObject, but the actual objects
-    // are TierZero, TierOne, TierTwo, your custom classes, etc. When we call
-    // obj.GetTier() or obj.GetPointValue(), the DERIVED version runs automatically.
-    //
-    // Session 3: Walk through these methods with the instructor.
-
-    /// <summary>
-    /// Counts how many active objects have the specified tier.
-    /// Demonstrates polymorphism: obj.GetTier() returns the derived value.
-    /// </summary>
     public int CountObjectsOfTier(int targetTier)
     {
         int count = 0;
@@ -304,19 +208,12 @@ public class GameManager : MonoBehaviour
         return count;
     }
 
-    /// <summary>
-    /// Sums the point values of all active objects.
-    /// Demonstrates polymorphism: obj.GetPointValue() returns each object's specific value.
-    /// </summary>
     public int GetTotalObjectPoints()
     {
         // TODO: Use a foreach loop to iterate activeObjects and sum each object's GetPointValue()
         return 0;
     }
 
-    /// <summary>
-    /// Returns the highest tier among all active objects.
-    /// </summary>
     public int GetHighestTier()
     {
         int highest = -1;
@@ -332,19 +229,12 @@ public class GameManager : MonoBehaviour
         return highest;
     }
 
-    /// <summary>
-    /// Returns the name of the highest-tier active object.
-    /// Demonstrates polymorphism: obj.GetObjectName() returns the derived name.
-    /// </summary>
     public string GetHighestObjectName()
     {
         // TODO: Use a foreach loop to find the object with the highest GetTier(), then return its GetObjectName()
         return "None";
     }
 
-    /// <summary>
-    /// Returns the total number of active objects in the container.
-    /// </summary>
     public int GetActiveObjectCount()
     {
         return activeObjects.Count;

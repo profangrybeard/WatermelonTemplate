@@ -1,60 +1,27 @@
 /*
- * GAME 220: Merge Template
- * Sessions 1-5: MergeObject Factory
+ * GAME 220: Merge Template -- MergeObjectFactory
+ * Holds one prefab per tier and creates objects by tier number.
+ * Polymorphism: CreateObject() returns MergeObject, but the object is TierZero, TierOne, etc.
+ * Concepts: Docs/INHERITANCE_CONCEPTS.md -- Polymorphism, example 4
  *
- * TEACHING FOCUS:
- * - POLYMORPHISM: CreateObject() returns MergeObject (base class) but the actual object
- *   is TierZero, TierOne, TierTwo, or whatever derived type the prefab contains
- * - ARRAY OF PREFABS: Each array slot corresponds to a tier (0=TierZero, 1=TierOne, etc.)
- * - FACTORY PATTERN: One method creates ANY object type based on tier number
- * - GetComponent<MergeObject>(): Finds ANY derived script through the base class reference
- *
- * This script manages the creation of merge objects. It holds an array of prefabs
- * (one per tier) and creates objects on demand via CreateObject(tier).
- *
- * STUDENT TASKS:
- * - Session 2+: Assign your new prefabs to slots in the Inspector
- * - Expand the array size if you create more than 5 tiers
+ * Session 2+: drag each new prefab into its slot. Expand the array for more than 5 tiers.
  */
 
 using UnityEngine;
 
 public class MergeObjectFactory : MonoBehaviour
 {
-    // ============================================
-    // OBJECT PREFAB ARRAY
-    // ============================================
-
-    // TEACHING: ARRAY INDEXED BY TIER
-    //   objectPrefabs[0] = TierZero, [1] = TierOne, [2] = TierTwo, [3+] = yours
-    // To create an object of any tier, just index into the array.
-    // No switch statement. No if/else chain. The array IS the mapping.
-    // Need more tiers? Expand the array in the Inspector and create more classes!
-
+    // Index = tier: [0] TierZero, [1] TierOne, [2] TierTwo, [3+] yours
     [Header("Object Prefabs (One Per Tier)")]
     [Tooltip("Drag each merge object prefab into the correct slot. Slot 0 = TierZero, Slot 1 = TierOne, etc.")]
     public GameObject[] objectPrefabs = new GameObject[5];
 
 
-    // ============================================
-    // FACTORY METHODS
-    // ============================================
+    // ---------- Factory methods ----------
 
-    // TEACHING: POLYMORPHIC RETURN TYPE
-    // CreateObject() returns MergeObject (base class), but the actual object
-    // is TierZero, TierOne, etc. (derived class). The caller doesn't need to
-    // know which type -- polymorphism ensures the correct methods run.
-    //   MergeObject obj = factory.CreateObject(0);  // Creates a TierZero
-    //   obj.GetTier();       // Returns 0 (TierZero's version runs)
-    //   obj.GetObjectName(); // Returns "TierZero" (TierZero's version runs)
-
-    /// <summary>
-    /// Creates a merge object of the specified tier and returns it as a MergeObject reference.
-    /// Returns null if the tier is invalid or the prefab slot is empty.
-    /// </summary>
+    // Returns null if the tier is out of range or its slot is empty
     public MergeObject CreateObject(int tier)
     {
-        // Validate the tier is within range
         if (tier < 0 || tier >= objectPrefabs.Length)
         {
             Debug.LogWarning($"MergeObjectFactory: Invalid tier {tier}! Valid range is 0-{objectPrefabs.Length - 1}. " +
@@ -62,7 +29,6 @@ public class MergeObjectFactory : MonoBehaviour
             return null;
         }
 
-        // Check if a prefab has been assigned for this tier
         if (objectPrefabs[tier] == null)
         {
             Debug.LogWarning($"MergeObjectFactory: No prefab assigned for tier {tier}! " +
@@ -70,14 +36,9 @@ public class MergeObjectFactory : MonoBehaviour
             return null;
         }
 
-        // Create a copy of the prefab
         GameObject obj = Instantiate(objectPrefabs[tier]);
 
-        // TEACHING: GetComponent<MergeObject>() finds ANY derived type (TierZero,
-        // TierOne, etc.) because they all inherit from MergeObject.
-        // The returned reference is typed as MergeObject, but the actual object
-        // retains its derived type. That's polymorphism through GetComponent.
-        MergeObject mergeObject = obj.GetComponent<MergeObject>();
+        MergeObject mergeObject = obj.GetComponent<MergeObject>(); // [POLY] finds any derived type
 
         if (mergeObject == null)
         {
@@ -90,10 +51,6 @@ public class MergeObjectFactory : MonoBehaviour
         return mergeObject;
     }
 
-    /// <summary>
-    /// Creates a merge object of the specified tier at the given position.
-    /// Convenience wrapper around CreateObject(tier).
-    /// </summary>
     public MergeObject CreateObjectAtPosition(int tier, Vector3 position)
     {
         MergeObject mergeObject = CreateObject(tier);
@@ -107,14 +64,9 @@ public class MergeObjectFactory : MonoBehaviour
     }
 
 
-    // ============================================
-    // HELPER METHODS
-    // ============================================
+    // ---------- Helpers ----------
 
-    /// <summary>
-    /// Returns the highest tier that has a prefab assigned.
-    /// Useful for determining the current merge chain length.
-    /// </summary>
+    // Highest tier with a prefab assigned (-1 if none)
     public int GetMaxTier()
     {
         int maxTier = -1;
@@ -130,10 +82,6 @@ public class MergeObjectFactory : MonoBehaviour
         return maxTier;
     }
 
-    /// <summary>
-    /// Returns true if a prefab has been assigned for the given tier.
-    /// Used by the merge system to check if the next tier exists before merging.
-    /// </summary>
     public bool HasPrefabForTier(int tier)
     {
         if (tier < 0 || tier >= objectPrefabs.Length) return false;
