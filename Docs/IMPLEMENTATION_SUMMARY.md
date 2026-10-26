@@ -29,8 +29,8 @@ Both templates follow the same pedagogical approach called **"MVP with Scaffolds
 - **Comment Density:** ~49%
 - **Documentation Files:** 8 markdown files (6 in `Docs/` + `README.md` + `MIGRATION.md` at root),
   plus 1 inside `Assets/_Project/Scripts/`
-- **Unity Version:** 6000.5.9f1
-- **Render Pipeline:** URP 17.5.0 with the **2D renderer** (`Renderer2DData`)
+- **Unity Version:** 6000.6.0f1
+- **Render Pipeline:** URP 17.6.0 with the **2D renderer** (`Renderer2DData`)
 - **Packages:** Input System 1.20.0
 - **Active Input Handling:** **Input System Package (New)** only -- legacy `Input.*` will not compile
 - **Repository Location:** `C:\SCAD\Projects\WatermelonTemplate`

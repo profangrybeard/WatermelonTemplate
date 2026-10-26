@@ -8,25 +8,24 @@ types (TierZero, TierOne, TierTwo) before students touch any code.
 
 **Time estimate:** 25-35 minutes
 
-> **This setup is required before the game will run.** `GameScene.unity` ships with only a
-> camera (Step 2, done) and a Managers object (Step 4, done) -- no walls, no sprites, no
-> prefabs, no DropController. Pressing Play on a fresh clone shows an empty screen. That is
-> expected; work through the steps below first.
+> **Already done in the repo (Oct 2026).** `GameScene.unity` now ships fully built: every
+> step below has been applied and play-tested under Unity 6000.6.0f1. Use this guide to
+> verify the scene, or to rebuild it from scratch if a copy gets broken.
 
 > **Handing this to students instead?** [STUDENT_SCENE_BUILD.md](STUDENT_SCENE_BUILD.md)
 > covers the same build in student-facing language, with the reasoning behind each component
 > and a triage table. Use that one if students are assembling the scene themselves; use this
 > one if you are building it for them.
 
-**Already done -- verify only:** Step 2 (camera) and Step 4 (Managers object).
-**Still to do:** Steps 2b, 3, 5, 6, 7-10 (prefabs) and Step 11 (wiring).
+**Already done -- verify only:** all steps. The circle sprite is `Assets/_Project/Sprites/Circle.png`
+(128 px at 128 PPU, Option B); the walls use `Square.png` in Tiled draw mode for visibility.
 
 ### Project configuration (already done -- verify only)
 
 | Setting | Value | Where |
 |---|---|---|
-| Unity version | `6000.5.9f1` | `ProjectSettings/ProjectVersion.txt` |
-| Render pipeline | URP 17.5.0, **2D renderer** (`Renderer2DData`) | `Assets/_Project/Render/` |
+| Unity version | `6000.6.0f1` | `ProjectSettings/ProjectVersion.txt` |
+| Render pipeline | URP 17.6.0, **2D renderer** (`Renderer2DData`) | `Assets/_Project/Render/` |
 | Active Input Handling | **Input System Package (New)** only | Player settings |
 | Input System | 1.20.0 | `Packages/manifest.json` |
 
@@ -42,7 +41,7 @@ setting doing its job; see `Docs/TROUBLESHOOTING.md` issues 15 and 16.
 
 1. Open Unity Hub
 2. Click **Open** and navigate to the project folder
-3. Unity 6000.5.9f1 should be selected (or your matching version)
+3. Unity 6000.6.0f1 should be selected (or your matching version)
 4. Open the project — it will compile the scripts automatically
 5. Open `Assets/_Project/Scenes/GameScene.unity`
 

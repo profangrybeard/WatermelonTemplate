@@ -32,7 +32,7 @@ You must begin from the official Watermelon Template:
 
 **https://github.com/profangrybeard/WatermelonTemplate**
 
-The template runs on **Unity 6000.5.9f1** with **URP (2D renderer)** and the **new Input
+The template runs on **Unity 6000.6.0f1** with **URP (2D renderer)** and the **new Input
 System**. Open it with a matching editor version. Legacy `Input.GetKeyDown` and
 `Input.mousePosition` will not compile — that is deliberate. Copy the `InputAction` pattern
 already in `DropController.cs` if you add new controls, and see `Docs/TROUBLESHOOTING.md`

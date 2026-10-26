@@ -362,6 +362,21 @@ Now documented as such rather than as "unused".
 
 ---
 
+## Update, 26 Oct 2026: 6000.6.0f1, scene built, play-tested
+
+- Upgraded to **Unity 6000.6.0f1** (URP 17.6.0) to match the lab machines. Compiles clean.
+- **Still open 1 and 2 are resolved.** The scene, sprite and three tier prefabs are built per
+  `Docs/SETUP_INSTRUCTIONS.md`, and the factory and DropController are wired.
+- **Play-tested.** A scripted play-mode run confirmed TierZero+TierZero -> TierOne (+2),
+  TierOne+TierOne -> TierTwo (+6), and game over triggering once the pile crossed the line.
+  A hands-on run in the editor (on 6000.6.1f1, before settling on .0f1) confirmed the mouse aims, a click drops, merges score in the
+  Console, and sprites render in colour (Global Light 2D present).
+- **Not hand-tested:** R to restart after game over.
+- **Design note:** with only three tiers, two TierTwos merge into a missing tier 3. Both are
+  destroyed and the "No prefab for tier 3" warning fires. That is intended (it prompts
+  students to add tier 3), but it also means the starter game rarely fills up enough to reach
+  game over by normal play.
+
 ## Status
 
 The Peggle migration these steps describe was **tested in the editor** — it compiled, ran,

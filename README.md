@@ -18,18 +18,17 @@ The merge system, physics, and game loop are **pre-built**. Students focus exclu
 > this shifts Session 1 from reading code to assembling the game; the session plan below
 > assumes the instructor-built default.
 
-**The scene is not built yet.** A fresh clone contains the scripts, a configured camera and a
-**Managers** GameObject (GameManager + MergeObjectFactory) -- but no walls, no sprites, no
-prefabs and no DropController. Pressing Play shows an empty screen until you work through
-[Docs/SETUP_INSTRUCTIONS.md](Docs/SETUP_INSTRUCTIONS.md) (25-35 minutes, one time). Everything
-below assumes that setup is done and committed, which is the state students receive.
+**The scene is built and playable.** A fresh clone opens `GameScene.unity` with the walls,
+Global Light 2D, DropController, circle sprite and the TierZero/TierOne/TierTwo prefabs already
+wired up per [Docs/SETUP_INSTRUCTIONS.md](Docs/SETUP_INSTRUCTIONS.md). Press Play and it runs.
+Use that guide to verify the scene or to rebuild it if a student breaks theirs.
 
 ### Project configuration
 
 | | |
 |---|---|
-| Unity | `6000.5.9f1` |
-| Render pipeline | URP 17.5.0, **2D renderer** (`Renderer2DData`) |
+| Unity | `6000.6.0f1` |
+| Render pipeline | URP 17.6.0, **2D renderer** (`Renderer2DData`) |
 | Input | Input System 1.20.0 -- **Active Input Handling is New-only** |
 
 **Two consequences of the URP 2D renderer worth knowing before you build anything:** the
