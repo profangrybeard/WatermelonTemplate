@@ -27,8 +27,8 @@ Both templates follow the same pedagogical approach called **"MVP with Scaffolds
 - **Total C# Scripts:** 8 files (1 base class + 3 given derived + 3 system scripts + `BuildInfo.cs`)
 - **Total Lines of Code:** ~740 lines
 - **Comment Density:** ~12% full-line comments (Oct 2026 trim; explanations moved to `Docs/INHERITANCE_CONCEPTS.md`)
-- **Documentation Files:** 8 markdown files (6 in `Docs/` + `README.md` + `MIGRATION.md` at root),
-  plus 1 inside `Assets/_Project/Scripts/`
+- **Documentation Files:** 11 markdown files (8 in `Docs/` + `README.md`, `MIGRATION.md` and `AGENTS.md` at root),
+  plus `Assets/_Project/Scripts/README.md` and the AI tutor rules in `.agents/rules/tutor-mode.md`
 - **Unity Version:** 6000.6.0f1
 - **Render Pipeline:** URP 17.6.0 with the **2D renderer** (`Renderer2DData`)
 - **Packages:** Input System 1.20.0

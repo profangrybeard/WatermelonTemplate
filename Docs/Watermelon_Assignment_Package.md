@@ -38,6 +38,10 @@ System**. Open it with a matching editor version. Legacy `Input.GetKeyDown` and
 already in `DropController.cs` if you add new controls, and see `Docs/TROUBLESHOOTING.md`
 issues 15 and 16 when input misbehaves.
 
+The project includes an **AI tutor** in VS Code (Google Antigravity). Set it up with
+`Docs/AI_TUTOR.md`. It will help you understand the code and your errors, but it won't
+write your classes for you.
+
 You are expected to:
 
 - Use the existing project structure

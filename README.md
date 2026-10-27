@@ -49,6 +49,17 @@ Input is bound through `[SerializeField] private InputAction` fields on `DropCon
 already filled in when you add the component -- there is no `.inputactions` asset and no
 `PlayerInput` component to wire up.
 
+### AI tutor (Google Antigravity)
+
+VS Code recommends the **Google Antigravity** extension when students open the project.
+It runs in **tutor mode**: [`.agents/rules/tutor-mode.md`](.agents/rules/tutor-mode.md)
+(with [`AGENTS.md`](AGENTS.md) as a pointer for other tools) tells it to guide with hints
+and questions rather than write code. It won't write students' merge object classes, their
+`OnMerge()` overrides, or the Session 3 TODO methods. Copilot and VS Code's built-in AI
+features are turned off in `.vscode/settings.json`. Students sign in by following
+[Docs/AI_TUTOR.md](Docs/AI_TUTOR.md); in-panel sign-in is currently broken, so it uses
+PowerShell instead.
+
 ---
 
 ## The MVP Approach
