@@ -1,10 +1,12 @@
 /*
- * GAME 220: Merge Template -- GameManager
- * Tracks dropped objects, executes merges, keeps score, detects game over.
- * Polymorphism: List<MergeObject> and MergeObjects(a, b) work with every derived type.
- * Concepts: Docs/INHERITANCE_CONCEPTS.md -- Polymorphism, examples 2 and 3
+ * GameManager -- runs the game: tracks every dropped object, merges pairs, keeps score,
+ * and ends the game when the pile gets too high.
  *
- * Session 3: complete the two TODO query methods at the bottom.
+ * It never asks "is this a TierZero or a TierTwo?" It talks to every object as a
+ * MergeObject, and each one answers with its own values. That's polymorphism.
+ *
+ * Read alongside: Docs/INHERITANCE_CONCEPTS.md (Polymorphism, examples 2 and 3)
+ * Session 3: finish the two TODO methods at the bottom of this file.
  */
 
 using System.Collections.Generic;
@@ -14,12 +16,20 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    // ─────────────────────────────────────────────────────────────────────────
+    // REFERENCES - Drag these in the Inspector
+    // ─────────────────────────────────────────────────────────────────────────
+
     [Header("References")]
     [Tooltip("Drag the MergeObjectFactory component from the scene")]
     public MergeObjectFactory objectFactory;
 
     [Tooltip("Drag the DropController component from the scene")]
     public DropController dropController;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // SETTINGS - Tweak these to change the rules
+    // ─────────────────────────────────────────────────────────────────────────
 
     [Header("Game Over Settings")]
     [Tooltip("Y position above which objects trigger game over")]
@@ -28,24 +38,35 @@ public class GameManager : MonoBehaviour
     [Tooltip("Seconds an object must be above the line before game over triggers")]
     public float gameOverDelay = 2f;
 
-    // Input pattern explained in DropController.cs
+    // Same InputAction pattern as DropController.cs
     [Header("Input")]
     [Tooltip("Button action that restarts the game after game over")]
     [SerializeField]
     private InputAction restartAction =
         new InputAction("Restart", InputActionType.Button, "<Keyboard>/r");
 
-    // [POLY] One list holds TierZero, TierOne, TierTwo and any class you add
+    // ─────────────────────────────────────────────────────────────────────────
+    // STATE - Tracked while playing
+    // ─────────────────────────────────────────────────────────────────────────
+    // LISTS: a List grows and shrinks while the game runs. An array's size is fixed.
+    //   activeObjects.Add(obj)       put one in
+    //   activeObjects.Remove(obj)    take one out
+    //   activeObjects.Count          how many are in it right now
+    //   foreach (MergeObject obj in activeObjects) { ... }   visit each one in turn
+    // It's a List<MergeObject>, so ONE list holds every tier at once. [POLY]
+
+    // Why one List<MergeObject> instead of a separate list for each tier?
     private List<MergeObject> activeObjects = new List<MergeObject>();
 
     private bool isGameOver = false;
     private float gameOverTimer = 0f;
     private int score = 0;
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // UNITY MESSAGES - Unity calls these automatically
+    // ─────────────────────────────────────────────────────────────────────────
 
-    // ---------- Unity lifecycle ----------
-
-    // An action that is never enabled does nothing, silently
+    // An InputAction that is never enabled does nothing, and shows no error.
     void OnEnable()
     {
         restartAction.Enable();
@@ -65,6 +86,8 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver)
         {
+            // Why does R only work after game over? What would change if this check moved
+            // above the `if (isGameOver)` line?
             if (restartAction.WasPressedThisFrame())
             {
                 RestartGame();
@@ -75,11 +98,14 @@ public class GameManager : MonoBehaviour
         CheckGameOverCondition();
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // PUBLIC METHODS - Other scripts call these
+    // ─────────────────────────────────────────────────────────────────────────
 
-    // ---------- Object tracking ----------
-
+    // Called by DropController when an object is dropped.
     public void RegisterMergeObject(MergeObject obj)
     {
+        // Why check Contains() before adding?
         if (obj != null && !activeObjects.Contains(obj))
         {
             activeObjects.Add(obj);
@@ -94,10 +120,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-    // ---------- Merge execution ----------
-
-    // Called by MergeObject.OnCollisionEnter2D. [POLY] one method handles every pair of types.
+    // Called by MergeObject.OnCollisionEnter2D when two same-tier objects touch.
+    // The parameters are typed MergeObject, so this ONE method handles every pair of tiers. [POLY]
     public void MergeObjects(MergeObject objA, MergeObject objB)
     {
         if (objA == null || objB == null) return;
@@ -109,12 +133,14 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // Why spawn the new object at the midpoint and not at objA's position?
         Vector3 mergePosition = (objA.transform.position + objB.transform.position) / 2f;
 
         int points = objA.GetPointValue() + objB.GetPointValue();   // [POLY]
         score += points;
         Debug.Log($"Merge! +{points} points (Total: {score})");
 
+        // Why remove them from the List before destroying them?
         UnregisterMergeObject(objA);
         UnregisterMergeObject(objB);
         Destroy(objA.gameObject);
@@ -137,8 +163,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-    // ---------- Game over ----------
+    // ─────────────────────────────────────────────────────────────────────────
+    // PRIVATE METHODS - Game over
+    // ─────────────────────────────────────────────────────────────────────────
 
     void CheckGameOverCondition()
     {
@@ -148,7 +175,7 @@ public class GameManager : MonoBehaviour
         {
             if (obj != null && obj.transform.position.y > gameOverLineY)
             {
-                // Only count dropped objects (Dynamic), not the one being aimed
+                // Why skip objects that aren't Dynamic? Which object would that be?
                 Rigidbody2D objRb = obj.GetComponent<Rigidbody2D>();
                 if (objRb != null && objRb.bodyType == RigidbodyType2D.Dynamic)
                 {
@@ -158,6 +185,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        // Why wait gameOverDelay seconds instead of ending the game right away?
         if (objectAboveLine)
         {
             gameOverTimer += Time.deltaTime;
@@ -189,9 +217,12 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-
-    // ---------- Query methods (Session 3) ----------
-    // Each obj is typed MergeObject; the derived GetTier()/GetPointValue() runs. [POLY]
+    // ─────────────────────────────────────────────────────────────────────────
+    // QUERY METHODS - Session 3: loops over the List that RETURN an answer
+    // ─────────────────────────────────────────────────────────────────────────
+    // Each of these walks the List with foreach and hands one value back with `return`.
+    // obj is typed MergeObject, but GetTier() / GetPointValue() run each object's own
+    // version. [POLY]  Read the two finished ones first; the TODOs follow the same shape.
 
     public int CountObjectsOfTier(int targetTier)
     {
@@ -216,6 +247,7 @@ public class GameManager : MonoBehaviour
 
     public int GetHighestTier()
     {
+        // Why start at -1 instead of 0?
         int highest = -1;
 
         foreach (MergeObject obj in activeObjects)

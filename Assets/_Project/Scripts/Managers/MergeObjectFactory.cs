@@ -1,9 +1,10 @@
 /*
- * GAME 220: Merge Template -- MergeObjectFactory
- * Holds one prefab per tier and creates objects by tier number.
- * Polymorphism: CreateObject() returns MergeObject, but the object is TierZero, TierOne, etc.
- * Concepts: Docs/INHERITANCE_CONCEPTS.md -- Polymorphism, example 4
+ * MergeObjectFactory -- builds merge objects. Give it a tier number, get back an object.
  *
+ * It holds one prefab per tier in an array. The array index IS the tier, so there's no
+ * if/else or switch: adding a tier means adding a class, a prefab, and filling a slot.
+ *
+ * Read alongside: Docs/INHERITANCE_CONCEPTS.md (Polymorphism, example 4)
  * Session 2+: drag each new prefab into its slot. Expand the array for more than 5 tiers.
  */
 
@@ -11,15 +12,26 @@ using UnityEngine;
 
 public class MergeObjectFactory : MonoBehaviour
 {
-    // Index = tier: [0] TierZero, [1] TierOne, [2] TierTwo, [3+] yours
+    // ─────────────────────────────────────────────────────────────────────────
+    // SETTINGS - Fill these slots in the Inspector
+    // ─────────────────────────────────────────────────────────────────────────
+    // ARRAYS: a fixed number of slots, each found by its index.
+    //   objectPrefabs[0] = TierZero, [1] = TierOne, [2] = TierTwo, [3] and up = yours
+    //   objectPrefabs.Length = how many slots there are (empty ones included)
+    // Compare GameManager's List, which grows and shrinks while the game runs.
+
+    // Why an array here but a List in GameManager?
     [Header("Object Prefabs (One Per Tier)")]
     [Tooltip("Drag each merge object prefab into the correct slot. Slot 0 = TierZero, Slot 1 = TierOne, etc.")]
     public GameObject[] objectPrefabs = new GameObject[5];
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // PUBLIC METHODS - Other scripts call these
+    // ─────────────────────────────────────────────────────────────────────────
+    // CreateObject's return type is MergeObject, the BASE class. What comes back is really
+    // a TierZero, TierOne, or one of yours, and the caller never needs to know which. [POLY]
+    // It returns null when it can't build one. Every caller has to check for that.
 
-    // ---------- Factory methods ----------
-
-    // Returns null if the tier is out of range or its slot is empty
     public MergeObject CreateObject(int tier)
     {
         if (tier < 0 || tier >= objectPrefabs.Length)
@@ -38,7 +50,8 @@ public class MergeObjectFactory : MonoBehaviour
 
         GameObject obj = Instantiate(objectPrefabs[tier]);
 
-        MergeObject mergeObject = obj.GetComponent<MergeObject>(); // [POLY] finds any derived type
+        // Why does GetComponent<MergeObject>() find a TierZero script?
+        MergeObject mergeObject = obj.GetComponent<MergeObject>(); // [POLY]
 
         if (mergeObject == null)
         {
@@ -51,6 +64,7 @@ public class MergeObjectFactory : MonoBehaviour
         return mergeObject;
     }
 
+    // A small method that reuses a bigger one: build it, then move it.
     public MergeObject CreateObjectAtPosition(int tier, Vector3 position)
     {
         MergeObject mergeObject = CreateObject(tier);
@@ -63,14 +77,12 @@ public class MergeObjectFactory : MonoBehaviour
         return mergeObject;
     }
 
-
-    // ---------- Helpers ----------
-
-    // Highest tier with a prefab assigned (-1 if none)
+    // Highest tier with a prefab in its slot, or -1 if every slot is empty.
     public int GetMaxTier()
     {
         int maxTier = -1;
 
+        // Why a for loop here, when GameManager uses foreach?
         for (int i = 0; i < objectPrefabs.Length; i++)
         {
             if (objectPrefabs[i] != null)
@@ -82,6 +94,7 @@ public class MergeObjectFactory : MonoBehaviour
         return maxTier;
     }
 
+    // Returns true or false. A bool return is a yes/no answer.
     public bool HasPrefabForTier(int tier)
     {
         if (tier < 0 || tier >= objectPrefabs.Length) return false;

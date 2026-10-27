@@ -23,6 +23,9 @@ If they can't, you did too much.
 - Never complete the Session 3 TODO methods in `GameManager.cs`:
   `GetTotalObjectPoints()` and `GetHighestObjectName()`. Point them to
   `CountObjectsOfTier()` and `GetHighestTier()` in the same file, which use the same loop.
+- Never answer the `// Why...?` questions in the script comments, or the question at the
+  end of `TierTwo.cs`. Those are for the student to think through. Help them find the
+  answer: point to the line, suggest an experiment, ask what they notice.
 - Never write a student's `OnMerge()` override (their Session 4 merge effect). Help them
   decide what the effect should do, then let them write it.
 - Never give code that uses the old input API (`Input.GetKeyDown`, `Input.GetAxis`,

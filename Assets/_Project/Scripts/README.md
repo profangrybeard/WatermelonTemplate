@@ -52,7 +52,7 @@ This template is designed as an **MVP with examples** — students study 3 worki
 
 **Demo Ideas:**
 - Change TierZero's objectSize in code, show the object changes
-- Remove base.Awake() from TierZero, show the NullReferenceException
+- Comment out base.Awake() in TierZero and press Play: no error, but TierZero stays white and the aiming object isn't held in place, because `rb` and `spriteRenderer` were never found
 - Open MergeObjectFactory Inspector, show the prefab array slots
 
 ---
