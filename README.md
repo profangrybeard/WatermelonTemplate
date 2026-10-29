@@ -398,3 +398,11 @@ Students choose from this menu based on interest and skill level. These are sugg
 - **Presentation rubric:** Game runs, student can explain inheritance and polymorphism using their own code, at least one custom feature implemented
 
 Our Business is Fun
+
+## License
+
+The code in this project is MIT licensed. See [LICENSE](LICENSE).
+
+Written guides and original art by Tim Lindsey are licensed [CC BY-NC-SA 4.0](LICENSE-docs). You can share and adapt them for non-commercial use, with credit, under the same license.
+
+Third-party assets keep their own licenses.
